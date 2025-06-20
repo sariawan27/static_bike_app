@@ -1,3 +1,83 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+#content-body {
+    background: linear-gradient(to bottom left, #216E93, #21648A, #1F5881, #172D5B, #191C51);
+    color: white;
+}
+
+.chart-card {
+    background-color: rgba(29, 27, 65, 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.left-options li:hover>a {
+    color: #FDFDFD;
+}
+
+.left-options li:hover:before {
+    opacity: 1;
+}
+
+.left-options li.active>a {
+    border-right: 3px solid #83E8A2;
+    box-shadow: 1px #83E8A2 inset;
+    color: #FDFDFD;
+}
+
+.left-options li.active:before {
+    opacity: 1;
+}
+
+.buttonwrapper {
+    list-style: none;
+    /* padding: 10px; */
+    padding: 5px 10px 5px 10px;
+    display: inline-flex;
+    width: auto;
+    border-radius: 50px;
+    background-color: rgba(255, 255, 255, 0.13);
+}
+
+.buttonwrapper li {
+    display: block;
+    float: left;
+    margin-left: 35px;
+    height: 35px;
+    width: 80px;
+}
+
+.buttonwrapper li:first-child {
+    margin-left: 0;
+}
+
+.buttonwrapper label {
+    display: block;
+    color: #FFFFFF;
+    font-family: Nunito Sans Light;
+    opacity: 1;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    padding: 8px 10px;
+    margin-bottom: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.buttonwrapper li.active label {
+    background-color: #182142;
+    border-radius: 50px;
+}
+#nav {
+    background-color: #181745;
+    color: white;
+    padding: 15px;
+}
+
+#profile-dropdown {
+    margin-top: auto;
+}
