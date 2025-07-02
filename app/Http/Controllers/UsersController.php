@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Inertia\Inertia;
 
 class UsersController extends Controller
@@ -12,8 +14,10 @@ class UsersController extends Controller
      */
     public function index()
     {
+        $user = User::all();
+
         return Inertia::render('User/ListPage', [
-            'users' => \App\Models\User::all(),
+            'users' => $user,
         ]);
     }
 
@@ -31,6 +35,23 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'password' => 'required',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'status' => 201,
+            'message' => 'User created successfully',
+            'data' => $user
+        ]);
     }
 
     /**
@@ -39,6 +60,13 @@ class UsersController extends Controller
     public function show(string $id)
     {
         //
+        $user = User::find($id);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'User retrieved successfully',
+            'user' => $user 
+        ]);
     }
 
     /**
@@ -47,6 +75,7 @@ class UsersController extends Controller
     public function edit(string $id)
     {
         //
+        // return Inertia::render('Profile/Edit', [
     }
 
     /**
@@ -55,6 +84,25 @@ class UsersController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $user = User::find($id);
+        $request->validate([
+            'name' => 'string|max:255',
+            'email' => 'string|lowercase|email|max:255|unique:'.User::class,
+        ]);
+
+        $data = [
+            'name'     => $request->has('name') ? $request->name : $user->name,
+            'email'    => $request->has('email') ? $request->email : $user->email,
+            'password' => $request->has('password') ? Hash::make($request->password) : $user->password,
+        ];
+        
+        $user->update($data);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'User updated successfully',
+            'user' => $user
+        ]);
     }
 
     /**
@@ -63,5 +111,13 @@ class UsersController extends Controller
     public function destroy(string $id)
     {
         //
+        $user = User::find($id);
+
+        $user->delete($id);
+
+        return response()->json([
+            'status' => 204,
+            'message' => 'Deleted successfully!'
+        ]);
     }
 }
