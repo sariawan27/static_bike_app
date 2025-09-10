@@ -8,6 +8,10 @@
     color: white;
 }
 
+#content-body-login {
+    background: linear-gradient(to bottom left, #216E93, #21648A, #1F5881, #172D5B, #191C51);
+}
+
 .chart-card {
     background-color: rgba(29, 27, 65, 0.6);
     border-radius: 4px;
@@ -80,4 +84,9 @@
 
 #profile-dropdown {
     margin-top: auto;
+}
+.react-datepicker-wrapper{
+    display: unset !important;
+    padding: 0;
+    border: 0;
 }
