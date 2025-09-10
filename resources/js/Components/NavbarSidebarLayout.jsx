@@ -1,15 +1,23 @@
 // src/components/NavbarSidebarLayout.jsx
 import {
+    Button,
     ChevronUpIcon,
     Dropdown,
     DropdownDivider,
     DropdownHeader,
     DropdownItem,
+    Modal,
+    ModalBody,
+    ModalHeader,
+    TextInput,
 } from "flowbite-react";
 import React from "react";
 
-import { HiCheckCircle, HiLogout, HiUser } from "react-icons/hi";
+import { HiCheckCircle, HiLogout, HiOutlineCog, HiUser } from "react-icons/hi";
 import { useState, useRef, useEffect } from "react";
+import InputLabel from "./InputLabel";
+import InputError from "./InputError";
+import { useForm } from "@inertiajs/react";
 
 const NavbarSidebarLayout = ({ header, children, user }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -18,6 +26,12 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
     const toggleSidebar = () => {
         setIsSidebarOpen((prev) => !prev);
     };
+
+    const [openModal, setOpenModal] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        rpmIddleTime: 0,
+    });
 
     // Tutup sidebar saat klik di luar
     useEffect(() => {
@@ -77,7 +91,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
             >
                 <div className="h-full px-3 pb-4 overflow-y-auto" id="nav">
                     <a
-                        href="https://flowbite.com/"
+                        href="/dashboard"
                         className="flex items-center ps-2.5 mb-5 text-white"
                     >
                         <img
@@ -220,50 +234,52 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                             </li>
                         ))}
                     </ul>
-                    <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 flex flex-col flex-1">
-                        <li className=" hover:text-black">
-                            <a
-                                href={route("users.index")}
-                                className={`flex items-center p-2 hover:text-black  hover:bg-gray-100 dark:hover:bg-gray-700 group ${
-                                    window.location.href
-                                        .split("/")
-                                        .filter(Boolean)[2] === "users"
-                                        ? "bg-gray-100 text-black"
-                                        : ""
-                                }`}
-                            >
-                                <span
-                                    className={`w-5 h-5 hover:text-black dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white  ${
+                    {user?.role === 1 ? (
+                        <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 flex flex-col flex-1">
+                            <li className=" hover:text-black">
+                                <a
+                                    href={route("users.index")}
+                                    className={`flex items-center p-2 hover:text-black  hover:bg-gray-100 dark:hover:bg-gray-700 group ${
                                         window.location.href
                                             .split("/")
                                             .filter(Boolean)[2] === "users"
                                             ? "bg-gray-100 text-black"
-                                            : "text-white"
+                                            : ""
                                     }`}
                                 >
-                                    <svg
-                                        className="w-6 h-6 hover:text-black dark:text-white"
-                                        aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
+                                    <span
+                                        className={`w-5 h-5 hover:text-black dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white  ${
+                                            window.location.href
+                                                .split("/")
+                                                .filter(Boolean)[2] === "users"
+                                                ? "bg-gray-100 text-black"
+                                                : "text-white"
+                                        }`}
                                     >
-                                        <path
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeWidth="2"
-                                            d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                        />
-                                    </svg>
-                                </span>
-                                <span className="flex-1 ms-3 whitespace-nowrap hover:text-black">
-                                    Users
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
+                                        <svg
+                                            className="w-6 h-6 hover:text-black dark:text-white"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                strokeLinecap="round"
+                                                strokeWidth="2"
+                                                d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                                            />
+                                        </svg>
+                                    </span>
+                                    <span className="flex-1 ms-3 whitespace-nowrap hover:text-black">
+                                        Users
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    ) : null}
 
                     <ul
                         className="space-y-2 font-medium absolute bottom-2"
@@ -284,7 +300,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                             alt="Flowbite Logo"
                                         />
                                         <span className="flex-1 ms-3 whitespace-nowrap">
-                                            Admin
+                                            {user?.name}
                                         </span>
                                         <span className="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium">
                                             <ChevronUpIcon />
@@ -294,9 +310,11 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                 placement="top"
                             >
                                 <DropdownHeader>
-                                    <span className="block text-sm">Admin</span>
+                                    <span className="block text-sm">
+                                        {user?.name}
+                                    </span>
                                     <span className="block truncate text-sm font-medium">
-                                        admin@flowbite.com
+                                        {user?.username}
                                     </span>
                                 </DropdownHeader>
                                 <DropdownItem
@@ -305,6 +323,14 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                 >
                                     Profile
                                 </DropdownItem>
+                                {user?.role === 1 ? (
+                                    <DropdownItem
+                                        icon={HiOutlineCog}
+                                        onClick={() => setOpenModal(true)}
+                                    >
+                                        Settings
+                                    </DropdownItem>
+                                ) : null}
                                 <DropdownDivider />
                                 <DropdownItem
                                     icon={HiLogout}
@@ -322,6 +348,64 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
             {/* Main Content */}
             <div className="p-4 sm:ml-64">
                 <div className="p-4">{children}</div>
+                <Modal
+                    show={openModal}
+                    size="md"
+                    popup
+                    position="top-center"
+                    onClose={() => setOpenModal(false)}
+                >
+                    <ModalHeader />
+                    <ModalBody>
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                                Settings
+                            </h3>
+                            <form>
+                                <div>
+                                    <InputLabel
+                                        htmlFor="rpmIddleTime"
+                                        value="Minimum RPM Iddle Time"
+                                    />
+
+                                    <TextInput
+                                        type="number"
+                                        id="rpmIddleTime"
+                                        name="rpmIddleTime"
+                                        value={data.rpmIddleTime}
+                                        className="mt-1 block w-full text-right"
+                                        position="right"
+                                        autoComplete="rpmIddleTime"
+                                        isFocused={true}
+                                        onChange={(e) =>
+                                            setData(
+                                                "rpmIddleTime",
+                                                e.target.value
+                                            )
+                                        }
+                                        required
+                                    />
+
+                                    <InputError
+                                        message={errors.rpmIddleTime}
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div className="w-full flex justify-end mt-4">
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        style={{
+                                            backgroundColor: "#181745",
+                                        }}
+                                    >
+                                        Save
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </ModalBody>
+                </Modal>
             </div>
         </div>
     );

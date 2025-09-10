@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportingController;
+use App\Http\Controllers\TrendingController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/users', [UsersController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UsersController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UsersController::class, 'destroy'])->name('users.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/trending', [TrendingController::class, 'index'])->name('trending.index');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/reporting', [ReportingController::class, 'index'])->name('reporting.index');
 });
 
 require __DIR__ . '/auth.php';

@@ -29,6 +29,11 @@
     "echarts-for-react": "^3.0.2",
     "flowbite-react": "^0.11.8",
     "framer-motion": "^12.18.1",
-    "react-icons": "^5.5.0"
+    "or": "^0.2.0",
+    "react-datepicker": "^8.4.0",
+    "react-icons": "^5.5.0",
+    "react-joyride": "^2.9.3",
+    "reactour": "^1.19.4",
+    "socket.io-client": "^4.8.1"
   }
 }
