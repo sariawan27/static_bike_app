@@ -1,13 +1,14 @@
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import {
     Button,
     Card,
     Modal,
     ModalBody,
     ModalHeader,
+    Spinner,
     Table,
     TableBody,
     TableCell,
@@ -18,7 +19,7 @@ import {
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 
-export default function Reporting() {
+export default function Reporting({ trxData, filters }) {
     const [openModal, setOpenModal] = useState(false);
     const [openFilterModal, setOpenFilterModal] = useState(false);
 
@@ -28,6 +29,22 @@ export default function Reporting() {
     );
     const [processing, setProcessing] = React.useState(false);
     const [errors, setErrors] = React.useState({});
+
+    const [loading, setLoading] = useState(false);
+
+    const handlePageChange = (url) => {
+        if (!url) return;
+        setLoading(true);
+        router.get(
+            url,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setLoading(false),
+            }
+        );
+    };
 
     console.log(
         window.location.href.split("/").filter(Boolean)[2],
@@ -102,31 +119,94 @@ export default function Reporting() {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody className="divide-y">
-                                            <TableRow
-                                                className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                                                style={{
-                                                    backgroundColor:
-                                                        "rgba(255, 255, 255, 0.9)",
-                                                }}
-                                            >
-                                                <TableCell className="text-center text-gray-900 dark:text-white">
-                                                    1
-                                                </TableCell>
-                                                <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                    2025-01-01 12:00:00
-                                                </TableCell>
-                                                <TableCell className="text-gray-900 dark:text-white">
-                                                    220 V
-                                                </TableCell>
-                                                <TableCell className="text-center text-gray-900 dark:text-white">
-                                                    0.182 A
-                                                </TableCell>
-                                                <TableCell className="text-center text-gray-900 dark:text-white">
-                                                    40 W
-                                                </TableCell>
-                                            </TableRow>
+                                            {loading ? (
+                                                <TableRow
+                                                    className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                                                    style={{
+                                                        backgroundColor:
+                                                            "rgba(255, 255, 255, 0.9)",
+                                                    }}
+                                                >
+                                                    <TableCell
+                                                        colSpan={5}
+                                                        className="text-center py-6 text-gray-500"
+                                                    >
+                                                        <Spinner size="lg" />
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : trxData.data.length > 0 ? (
+                                                trxData.data.map(
+                                                    (item, index) => (
+                                                        <TableRow
+                                                            key={item.id}
+                                                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    "rgba(255, 255, 255, 0.9)",
+                                                            }}
+                                                        >
+                                                            <TableCell className="text-center text-gray-900 dark:text-white">
+                                                                {(trxData.current_page -
+                                                                    1) *
+                                                                    trxData.per_page +
+                                                                    index +
+                                                                    1}
+                                                            </TableCell>
+                                                            <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                {
+                                                                    item.created_at
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell className="text-gray-900 dark:text-white">
+                                                                {item.voltage} V
+                                                            </TableCell>
+                                                            <TableCell className="text-center text-gray-900 dark:text-white">
+                                                                {item.current} A
+                                                            </TableCell>
+                                                            <TableCell className="text-center text-gray-900 dark:text-white">
+                                                                {item.power} W
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )
+                                                )
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell
+                                                        colSpan={5}
+                                                        className="text-center py-4 text-gray-500"
+                                                    >
+                                                        Data tidak tersedia
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
                                         </TableBody>
                                     </Table>
+                                    {console.log(trxData.links)}
+
+                                    {/* Pagination */}
+                                    <div className="flex justify-center items-center gap-2 mt-4">
+                                        {trxData.links.map((link, i) => (
+                                            <button
+                                                key={i}
+                                                disabled={!link.url || loading}
+                                                onClick={() =>
+                                                    handlePageChange(link.url)
+                                                }
+                                                className={`px-3 py-1 rounded ${
+                                                    link.active
+                                                        ? "bg-blue-600 text-white"
+                                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                                } ${
+                                                    !link.url
+                                                        ? "opacity-50 cursor-not-allowed"
+                                                        : ""
+                                                }`}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </Card>
