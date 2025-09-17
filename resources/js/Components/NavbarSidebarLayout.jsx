@@ -110,7 +110,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                 link: "/dashboard",
                                 icon: (
                                     <svg
-                                        className="w-6 h-6  hover:text-black dark:text-white"
+                                        className="w-6 h-6  hover:text-black"
                                         aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="24"
@@ -134,7 +134,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                 badge: "3",
                                 icon: (
                                     <svg
-                                        className="w-6 h-6  hover:text-black dark:text-white"
+                                        className="w-6 h-6  hover:text-black"
                                         aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="24"
@@ -157,7 +157,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                 link: "/reporting",
                                 icon: (
                                     <svg
-                                        className="w-6 h-6 hover:text-black dark:text-white"
+                                        className="w-6 h-6 hover:text-black"
                                         aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="24"
@@ -257,7 +257,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                         }`}
                                     >
                                         <svg
-                                            className="w-6 h-6 hover:text-black dark:text-white"
+                                            className="w-6 h-6 hover:text-black"
                                             aria-hidden="true"
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="24"
