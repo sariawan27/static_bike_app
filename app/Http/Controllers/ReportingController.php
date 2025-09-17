@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Log;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ReportingController extends Controller
@@ -10,9 +13,26 @@ class ReportingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Reporting/index', []);
+        $query = Transaction::query();
+
+        // ambil user_id dari user login
+        $query->where('user_id', Auth::id());
+
+        // filter tanggal
+        if ($request->filled('startdate') && $request->filled('enddate')) {
+            $query->whereBetween('created_at', [$request->startdate, $request->enddate]);
+        }
+
+        $trxData = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Reporting/index', [
+            'trxData' => $trxData,
+            'filters' => $request->only(['startdate', 'enddate']),
+        ]);
     }
 
     /**

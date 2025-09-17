@@ -191,10 +191,9 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                                 .filter(Boolean)[2] ===
                                                 "trending") ||
                                         (item.link === "/reporting" &&
-                                            window.location.href
-                                                .split("/")
-                                                .filter(Boolean)[2] ===
-                                                "reporting")
+                                            window.location.pathname.split(
+                                                "/"
+                                            )[1] === "reporting")
                                             ? "bg-gray-100 text-black"
                                             : ""
                                     }`}
@@ -212,10 +211,9 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                                     .filter(Boolean)[2] ===
                                                     "trending") ||
                                             (item.link === "/reporting" &&
-                                                window.location.href
-                                                    .split("/")
-                                                    .filter(Boolean)[2] ===
-                                                    "reporting")
+                                                window.location.pathname.split(
+                                                    "/"
+                                                )[1] === "reporting")
                                                 ? "bg-gray-100 text-black"
                                                 : "text-white"
                                         }`}
