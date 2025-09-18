@@ -170,7 +170,13 @@ export default function Reporting({ trxData, filters }) {
                                                     )
                                                 )
                                             ) : (
-                                                <TableRow>
+                                                <TableRow
+                                                    className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                                                    style={{
+                                                        backgroundColor:
+                                                            "rgba(255, 255, 255, 0.9)",
+                                                    }}
+                                                >
                                                     <TableCell
                                                         colSpan={5}
                                                         className="text-center py-4 text-gray-500"

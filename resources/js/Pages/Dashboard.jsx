@@ -5,6 +5,7 @@ import ReactEcharts from "echarts-for-react";
 import { HiPause, HiPlay } from "react-icons/hi";
 import Tour from "reactour";
 import { useEffect, useRef, useState } from "react";
+import moment from "moment-timezone";
 
 import { io } from "socket.io-client";
 
@@ -13,6 +14,13 @@ export default function Dashboard() {
         window.location.href.split("/").filter(Boolean)[2],
         "Dashboard"
     );
+
+    const [data, setData] = useState([]);
+    const [voltage, setVoltage] = useState([]);
+    const [current, setCurrent] = useState([]);
+    const [energy, setEnergy] = useState(0);
+    const [daya, setDaya] = useState([]);
+    const [timestamp, setTimestamp] = useState([]);
 
     const user = usePage().props.auth.user;
 
@@ -53,7 +61,7 @@ export default function Dashboard() {
                 },
                 data: [
                     {
-                        value: 20,
+                        value: data[1] ? data[1] : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -93,7 +101,7 @@ export default function Dashboard() {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} m/s",
+                    formatter: "{value}",
                 },
             },
         ],
@@ -135,7 +143,7 @@ export default function Dashboard() {
                 },
                 data: [
                     {
-                        value: 80,
+                        value: data[4] ? data[4] : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -175,7 +183,7 @@ export default function Dashboard() {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} W",
+                    formatter: "{value} J",
                 },
             },
         ],
@@ -217,7 +225,7 @@ export default function Dashboard() {
                 },
                 data: [
                     {
-                        value: 20,
+                        value: energy ? energy.toFixed(4) : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -292,7 +300,7 @@ export default function Dashboard() {
         xAxis: {
             type: "category",
             boundaryGap: false,
-            data: ["08:00", "09:00", "16:00", "16:30"],
+            data: timestamp,
         },
         yAxis: {
             type: "value",
@@ -307,13 +315,13 @@ export default function Dashboard() {
                 name: "Voltage",
                 type: "line",
                 showSymbol: false,
-                data: [100, 130, 138, 150],
+                data: voltage,
             },
             {
                 name: "Current",
                 type: "line",
                 showSymbol: false,
-                data: [120, 120, 150, 134],
+                data: current,
             },
         ],
     };
@@ -347,8 +355,9 @@ export default function Dashboard() {
                 "Tegangan & Arus: Ini menunjukkan tegangan dan arus yang dihasilkan oleh sepeda statis.",
         },
     ];
-
-    const [data, setData] = useState(null);
+    console.log(voltage, "voltage di dashboard");
+    console.log(current, "current di dashboard");
+    console.log(daya, "daya di dashboard");
     const socketRef = useRef(null);
     // ⏱️ Auto start saat komponen pertama kali render
     useEffect(() => {
@@ -365,6 +374,7 @@ export default function Dashboard() {
             try {
                 const message = JSON.parse(event.data);
                 setData(message);
+                console.log(message);
             } catch (e) {
                 console.error("Invalid JSON:", event.data);
             }
@@ -401,14 +411,6 @@ export default function Dashboard() {
                 />
                 <div className="mx-auto max-w-8xl sm:px-6 lg:px-8">
                     <div className="p-2 text-white text-3xl ">Dashboard</div>
-                    <div style={{ padding: 20 }}>
-                        <h2>Data Real-Time dari Node-RED</h2>
-                        {data ? (
-                            <pre>{JSON.stringify(data, null, 2)}</pre>
-                        ) : (
-                            "Menunggu data..."
-                        )}
-                    </div>
                     <div className="text-right mt-1">
                         <div className="p-3 buttonwrapper text-white text-md text-right">
                             {new Date().toLocaleDateString("id-ID", {
@@ -446,7 +448,56 @@ export default function Dashboard() {
                                         color: "rgba(24, 22, 70, 0.8)",
                                         cursor: "pointer",
                                     }}
-                                    onClick={() => setPlay(false)}
+                                    onClick={() => {
+                                        setTimestamp([]);
+                                        setVoltage([]);
+                                        setCurrent([]);
+                                        setDaya([]);
+                                        setData([]);
+                                        setEnergy(0);
+                                        // Hubungkan ke WebSocket dari Node-RED
+                                        socketRef.current = new WebSocket(
+                                            "ws://localhost:1880/trigger-run"
+                                        );
+
+                                        // Saat koneksi terbuka
+                                        socketRef.current.onopen = () => {
+                                            console.log(
+                                                "WebSocket connected to Node-RED"
+                                            );
+                                            // langsung start
+                                            socketRef.current.send(
+                                                JSON.stringify({
+                                                    action: "stop",
+                                                })
+                                            );
+                                        };
+
+                                        // Saat menerima pesan
+                                        socketRef.current.onmessage = (
+                                            event
+                                        ) => {
+                                            try {
+                                                const message = JSON.parse(
+                                                    event.data
+                                                );
+                                                console.log(message);
+                                            } catch (e) {
+                                                console.error(
+                                                    "Invalid JSON:",
+                                                    event.data
+                                                );
+                                            }
+                                        };
+
+                                        // Saat koneksi ditutup
+                                        socketRef.current.onclose = () => {
+                                            console.log(
+                                                "WebSocket disconnected"
+                                            );
+                                        };
+                                        setPlay(false);
+                                    }}
                                 />
                             ) : (
                                 <HiPlay
@@ -458,6 +509,75 @@ export default function Dashboard() {
                                     }}
                                     onClick={() => {
                                         setPlay(true);
+
+                                        // Hubungkan ke WebSocket dari Node-RED
+                                        socketRef.current = new WebSocket(
+                                            "ws://localhost:1880/trigger-run"
+                                        );
+
+                                        // Saat koneksi terbuka
+                                        socketRef.current.onopen = () => {
+                                            console.log(
+                                                "WebSocket connected to Node-RED"
+                                            );
+                                            // langsung start
+                                            socketRef.current.send(
+                                                JSON.stringify({
+                                                    action: "start",
+                                                })
+                                            );
+                                        };
+
+                                        // Saat menerima pesan
+                                        socketRef.current.onmessage = (
+                                            event
+                                        ) => {
+                                            try {
+                                                const message = JSON.parse(
+                                                    event.data
+                                                );
+                                                setTimestamp((prev) => [
+                                                    ...prev,
+                                                    moment(message[7])
+                                                        .tz("Asia/Jakarta")
+                                                        .format("HH:mm:ss"),
+                                                ]);
+                                                setVoltage((prev) => [
+                                                    ...prev,
+                                                    message[2],
+                                                ]);
+                                                setCurrent((prev) => [
+                                                    ...prev,
+                                                    message[3],
+                                                ]);
+                                                const sum =
+                                                    daya.reduce(
+                                                        (a, b) => a + b,
+                                                        0
+                                                    ) + message[5];
+                                                setEnergy(
+                                                    (x) => x + message[5]
+                                                );
+                                                setDaya((prev) => [
+                                                    ...prev,
+                                                    message[4],
+                                                ]);
+                                                console.log(message);
+                                                setData(message);
+                                            } catch (e) {
+                                                console.error(
+                                                    "Invalid JSON:",
+                                                    event.data
+                                                );
+                                            }
+                                        };
+
+                                        // Saat koneksi ditutup
+                                        socketRef.current.onclose = () => {
+                                            console.log(
+                                                "WebSocket disconnected"
+                                            );
+                                        };
                                     }}
                                 />
                             )}
