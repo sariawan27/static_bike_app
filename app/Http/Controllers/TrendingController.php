@@ -22,7 +22,8 @@ class TrendingController extends Controller
             ->get();
 
         if ($hrcId == null) {
-            $trxData = Transaction::where('user_id', Auth::id())->where('hrc_id', $hrcData[0]->hrc_id)
+            // $hrc
+            $trxData = Transaction::where('user_id', Auth::id())->where('hrc_id', $hrcData[0]->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
