@@ -1,21 +1,51 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
-import { Button, Card, Modal, ModalBody, ModalHeader } from "flowbite-react";
+import { Head, router, useForm } from "@inertiajs/react";
+import {
+    Button,
+    Card,
+    Label,
+    Modal,
+    ModalBody,
+    ModalHeader,
+    Select,
+} from "flowbite-react";
 import ReactEcharts from "echarts-for-react";
 import DatePicker from "react-datepicker";
 import React from "react";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
+import moment from "moment-timezone";
 
-export default function Trending() {
+export default function Trending({ trxData, hrcData, filter }) {
+    console.log(trxData);
     console.log(window.location.href.split("/").filter(Boolean)[2], "Trending");
+    const { get } = useForm();
     const [openModal, setOpenModal] = React.useState(false);
+    const [selectedHrc, setSelectedHrc] = React.useState(filter || "");
+
+    const handleSearch = () => {
+        setOpenModal(false);
+
+        if (!selectedHrc) return;
+
+        router.get(
+            route("trending.index"), // pastikan route name sesuai
+            { hrc_id: selectedHrc }, // 👈 param terkirim sebagai query string
+            { preserveState: true, replace: true }
+        );
+    };
     const [selectedDateTime, setSelectedDateTime] = React.useState(new Date());
     const [selectedEndDateTime, setSelectedEndDateTime] = React.useState(
         new Date()
     );
     const [processing, setProcessing] = React.useState(false);
     const [errors, setErrors] = React.useState({});
+    let timestamp = trxData.map((trx) =>
+        moment(trx.created_at).tz("Asia/Jakarta").format("HH:mm:ss")
+    );
+    let powerArray = trxData.map((trx) => trx.power);
+
+    // 👉 [2200, 2760, 3600]
 
     const optionsTrending = {
         // title: {
@@ -46,7 +76,7 @@ export default function Trending() {
                 fontSize: 20, // ✅ ukuran font sumbu X diatur di sini
             },
             // prettier-ignore
-            data: ['00:00', '01:15', '02:30', '03:45', '05:00', '06:15', '07:30', '08:45', '10:00', '11:15', '12:30', '13:45', '15:00', '16:15', '17:30', '18:45', '20:00', '21:15', '22:30', '23:45'],
+            data: timestamp,
         },
         yAxis: {
             type: "value",
@@ -60,7 +90,7 @@ export default function Trending() {
         },
         series: [
             {
-                name: "Electricity",
+                name: "Daya (W)",
                 type: "line",
                 smooth: true,
                 lineStyle: {
@@ -70,7 +100,7 @@ export default function Trending() {
                     color: "green",
                 },
                 // prettier-ignore
-                data: [300, 280, 250, 260, 270, 300, 550, 500, 400, 390, 380, 390, 400, 500, 600, 750, 800, 700, 600, 400],
+                data: powerArray,
                 markArea: {
                     itemStyle: {
                         color: "rgba(255, 173, 177, 0.4)",
@@ -93,17 +123,38 @@ export default function Trending() {
             <div>
                 <div className="mx-auto max-w-8xl sm:px-6 lg:px-8">
                     <div className="p-2 text-white text-3xl ">Trending</div>
-                    <div className="text-right mt-1">
+                    <div className="text-right mt-1 button-container">
                         <div
-                            className="p-3 buttonwrapper text-white text-md text-right"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setOpenModal(true)}
+                            className="p-3 text-white text-md text-right"
+                            // style={{ cursor: "pointer" }}
+                            // onClick={() => setOpenModal(true)}
                         >
                             {new Date().toLocaleDateString("id-ID", {
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
                             })}
+                        </div>
+
+                        <div
+                            className="p-3 text-white text-md text-right"
+                            // style={{ cursor: "pointer" }}
+                            onClick={() => setOpenModal(true)}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                className="size-6"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+                                />
+                            </svg>
                         </div>
                     </div>
                     <div className="mt-3 flex flex-col sm:flex-row">
@@ -133,7 +184,7 @@ export default function Trending() {
                 </div>
                 <Modal
                     show={openModal}
-                    size="md"
+                    size="3xl"
                     popup
                     position="top-center"
                     onClose={() => setOpenModal(false)}
@@ -142,69 +193,43 @@ export default function Trending() {
                     <ModalBody>
                         <div className="space-y-6">
                             <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-                                Filter Date&Time
+                                Filter Rekam Data
                             </h3>
-                            <form>
-                                <div>
-                                    <InputLabel
-                                        htmlFor="startDate"
-                                        value="Start Date"
-                                    />
-
-                                    <DatePicker
-                                        id="startDate"
-                                        className="w-full"
-                                        style={{ display: "unset !important" }}
-                                        selected={selectedDateTime}
-                                        onChange={(date) =>
-                                            setSelectedDateTime(date)
-                                        }
-                                        showTimeSelect
-                                        timeFormat="HH:mm:ss"
-                                        dateFormat="MMMM d, yyyy h:mm:ss aa"
-                                    />
-
-                                    <InputError
-                                        message={errors.startDate}
-                                        className="mt-2"
-                                    />
-                                </div>
-                                <div className="mt-4">
-                                    <InputLabel
-                                        htmlFor="endDate"
-                                        value="End Date"
-                                    />
-
-                                    <DatePicker
-                                        id="endDate"
-                                        className="w-full"
-                                        style={{ display: "unset !important" }}
-                                        selected={selectedEndDateTime}
-                                        onChange={(date) =>
-                                            setSelectedEndDateTime(date)
-                                        }
-                                        showTimeSelect
-                                        timeFormat="HH:mm:ss"
-                                        dateFormat="MMMM d, yyyy h:mm:ss aa"
-                                    />
-
-                                    <InputError
-                                        message={errors.endDate}
-                                        className="mt-2"
-                                    />
-                                </div>
-                                <div className="w-full flex justify-end mt-4">
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                        style={{
-                                            backgroundColor: "#181745",
-                                        }}
-                                    >
-                                        Search Data
-                                    </Button>
-                                </div>
-                            </form>
+                            <div>
+                                <Label htmlFor="hrcFilter" value="Pilih HRC" />
+                                <Select
+                                    id="hrcFilter"
+                                    value={selectedHrc}
+                                    onChange={(e) =>
+                                        setSelectedHrc(e.target.value)
+                                    }
+                                >
+                                    {/* <option value="">-- Semua HRC --</option> */}
+                                    {hrcData.map((hrc) => (
+                                        <option key={hrc.id} value={hrc.id}>
+                                            {moment(hrc.start)
+                                                .tz("Asia/Jakarta")
+                                                .format(
+                                                    "DD-MM-yyyy HH:mm:ss"
+                                                )}{" "}
+                                            -{" "}
+                                            {moment(hrc.end)
+                                                .tz("Asia/Jakarta")
+                                                .format("DD-MM-yyyy HH:mm:ss")}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                style={{
+                                    backgroundColor: "#181745",
+                                }}
+                                onClick={handleSearch}
+                            >
+                                Search Data
+                            </Button>
                         </div>
                     </ModalBody>
                 </Modal>
