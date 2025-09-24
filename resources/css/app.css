@@ -90,3 +90,17 @@
     padding: 0;
     border: 0;
 }
+.button-container {
+  display: flex;          /* bikin sejajar */
+  gap: 10px;              /* jarak antar button */
+  justify-content: end;
+}
+
+.button-container div {
+  list-style: none;
+  padding: 5px 10px;
+  border-radius: 50px;
+  background-color: #ffffff21;
+  border: none;
+  cursor: pointer;
+}

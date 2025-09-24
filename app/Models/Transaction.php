@@ -9,6 +9,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'user_id',
+        'hrc_id',
         'rpm',
         'voltage',
         'current',
