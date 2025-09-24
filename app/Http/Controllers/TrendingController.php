@@ -22,11 +22,11 @@ class TrendingController extends Controller
             ->get();
 
         if ($hrcId == null) {
-            $trxData = Transaction::when($hrcData[0]['hrc_id'], fn($q) => $q->where('hrc_id', $hrcData[0]['hrc_id']))
+            $trxData = Transaction::where('user_id', Auth::id())->where('hrc_id', $hrcData[0]->hrc_id)
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
-            $trxData = Transaction::when($hrcId, fn($q) => $q->where('hrc_id', $hrcId))
+            $trxData = Transaction::where('user_id', Auth::id())->when($hrcId, fn($q) => $q->where('hrc_id', $hrcId))
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
