@@ -36,6 +36,7 @@
     "react-icons": "^5.5.0",
     "react-joyride": "^2.9.3",
     "reactour": "^1.19.4",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "sweetalert2": "^11.24.1"
   }
 }

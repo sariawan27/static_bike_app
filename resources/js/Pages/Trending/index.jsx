@@ -8,6 +8,7 @@ import {
     ModalBody,
     ModalHeader,
     Select,
+    Tooltip,
 } from "flowbite-react";
 import ReactEcharts from "echarts-for-react";
 import DatePicker from "react-datepicker";
@@ -44,6 +45,13 @@ export default function Trending({ trxData, hrcData, filter }) {
         moment(trx.created_at).tz("Asia/Jakarta").format("HH:mm:ss")
     );
     let powerArray = trxData.map((trx) => trx.power);
+    let totalEnergy = trxData.reduce(
+        (sum, item) => sum + Number(item.energy),
+        0
+    );
+    console.log(hrcData, "HRC DATA");
+    console.log(selectedHrc, "SELECTED HRC");
+    let hrcFilteredData = hrcData.find((item) => item.id === +filter);
 
     // 👉 [2200, 2760, 3600]
 
@@ -125,7 +133,7 @@ export default function Trending({ trxData, hrcData, filter }) {
                     <div className="p-2 text-white text-3xl ">Trending</div>
                     <div className="text-right mt-1 button-container">
                         <div
-                            className="p-3 text-white text-md text-right"
+                            className="p-3 text-white text-md text-right its"
                             // style={{ cursor: "pointer" }}
                             // onClick={() => setOpenModal(true)}
                         >
@@ -136,26 +144,28 @@ export default function Trending({ trxData, hrcData, filter }) {
                             })}
                         </div>
 
-                        <div
-                            className="p-3 text-white text-md text-right"
-                            // style={{ cursor: "pointer" }}
-                            onClick={() => setOpenModal(true)}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.5"
-                                stroke="currentColor"
-                                className="size-6"
+                        <Tooltip content="Filter" placement="bottom">
+                            <div
+                                className="p-3 text-white text-md text-right its"
+                                // style={{ cursor: "pointer" }}
+                                onClick={() => setOpenModal(true)}
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
-                                />
-                            </svg>
-                        </div>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    className="size-6"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+                                    />
+                                </svg>
+                            </div>
+                        </Tooltip>
                     </div>
                     <div className="mt-3 flex flex-col sm:flex-row">
                         <Card
@@ -166,10 +176,27 @@ export default function Trending({ trxData, hrcData, filter }) {
                             }}
                         >
                             <span className="xl:text-2xl text-xl text-black font-semibold">
-                                Data Daya (19:30:00 - 20:30:00)
+                                Data Daya (
+                                {selectedHrc == ""
+                                    ? moment(hrcData[0]?.start)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")
+                                    : moment(hrcFilteredData?.start)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")}{" "}
+                                {selectedHrc == "" ? "" : " - "}
+                                {selectedHrc == ""
+                                    ? moment(hrcData[0]?.end)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")
+                                    : moment(hrcFilteredData?.end)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")}
+                                )
                             </span>
                             <span className="text-gray-500">
-                                (<b>Energy Produced:</b> 1.2 kWh)
+                                (<b>Energy Produced:</b>{" "}
+                                {totalEnergy.toFixed(4)} J)
                             </span>
                             <ReactEcharts
                                 option={optionsTrending}
@@ -220,16 +247,16 @@ export default function Trending({ trxData, hrcData, filter }) {
                                     ))}
                                 </Select>
                             </div>
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                                style={{
-                                    backgroundColor: "#181745",
-                                }}
-                                onClick={handleSearch}
-                            >
-                                Search Data
-                            </Button>
+                            <div className="flex justify-end">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    style={{ backgroundColor: "#181745" }}
+                                    onClick={handleSearch}
+                                >
+                                    Search Data
+                                </Button>
+                            </div>
                         </div>
                     </ModalBody>
                 </Modal>
