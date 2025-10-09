@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import moment from "moment-timezone";
 
 import { io } from "socket.io-client";
+import Swal from "sweetalert2";
 
 export default function Dashboard() {
     console.log(
@@ -15,6 +16,9 @@ export default function Dashboard() {
         "Dashboard"
     );
 
+    const [rpm, setRpm] = useState({ value: null, ts: Date.now() });
+    const [startDate, setStartDate] = useState(null);
+    const startTimeRef = useRef(null);
     const [data, setData] = useState([]);
     const [voltage, setVoltage] = useState([]);
     const [current, setCurrent] = useState([]);
@@ -183,7 +187,7 @@ export default function Dashboard() {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} J",
+                    formatter: "{value} W",
                 },
             },
         ],
@@ -265,7 +269,7 @@ export default function Dashboard() {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} kWh",
+                    formatter: "{value} J",
                 },
             },
         ],
@@ -359,6 +363,116 @@ export default function Dashboard() {
     console.log(current, "current di dashboard");
     console.log(daya, "daya di dashboard");
     const socketRef = useRef(null);
+
+    useEffect(() => {
+        const { value, ts } = rpm;
+        console.log(ts, "ts di dashboard");
+
+        const currentTime = ts;
+
+        console.log((ts - startDate) / 1000, "duration di dashboard");
+
+        if (value <= 0.05 || value === null) {
+            console.log("RPM 0 detected, starting timer...");
+            if (!startTimeRef.current) {
+                console.log("Timer started");
+                startTimeRef.current = startDate;
+            } else {
+                console.log("Timer running...");
+                const duration = (currentTime - startTimeRef.current) / 1000;
+                if (duration >= 60 && duration <= 61) {
+                    Swal.fire({
+                        title: "Anda diam lebih dari 1 menit!",
+                        text: "Apakah Anda ingin lanjut?",
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonText: "Ya, lanjut",
+                        cancelButtonText: "Stop",
+                        allowOutsideClick: false, // 🚫 tidak bisa klik luar
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            console.log("Reset dilakukan!");
+                        } else {
+                            // Hubungkan ke WebSocket dari Node-RED
+                            socketRef.current = new WebSocket(
+                                "ws://localhost:1880/trigger-run"
+                            );
+
+                            // Saat koneksi terbuka
+                            socketRef.current.onopen = () => {
+                                console.log("WebSocket connected to Node-RED");
+                                // langsung start
+                                socketRef.current.send(
+                                    JSON.stringify({
+                                        action: "stop",
+                                    })
+                                );
+                            };
+
+                            // Saat koneksi ditutup
+                            socketRef.current.onclose = () => {
+                                console.log("WebSocket disconnected");
+                            };
+                            setTimestamp([]);
+                            setVoltage([]);
+                            setCurrent([]);
+                            setDaya([]);
+                            setData([]);
+                            setEnergy(0);
+                            Swal.close();
+                            setPlay(false);
+
+                            startTimeRef.current = null; // reset agar tidak spam alert
+                            setStartDate(null);
+                        }
+                    });
+                } else if (duration >= 120 && duration <= 121) {
+                    // Jika sudah lebih dari 2 menit, reset timer
+                    startTimeRef.current = null; // reset agar tidak spam alert
+                    setStartDate(null);
+                    // alert("RPM 0 lebih dari 1 menit!");
+                    Swal.fire({
+                        title: "Anda diam lebih dari 2 menit!",
+                        text: "Sistem akan berhenti otomatis.",
+                        icon: "warning",
+                    }).then((result) => {
+                        // Hubungkan ke WebSocket dari Node-RED
+                        socketRef.current = new WebSocket(
+                            "ws://localhost:1880/trigger-run"
+                        );
+
+                        // Saat koneksi terbuka
+                        socketRef.current.onopen = () => {
+                            console.log("WebSocket connected to Node-RED");
+                            // langsung start
+                            socketRef.current.send(
+                                JSON.stringify({
+                                    action: "stop",
+                                })
+                            );
+                        };
+
+                        // Saat koneksi ditutup
+                        socketRef.current.onclose = () => {
+                            console.log("WebSocket disconnected");
+                        };
+                        setTimestamp([]);
+                        setVoltage([]);
+                        setCurrent([]);
+                        setDaya([]);
+                        setData([]);
+                        setEnergy(0);
+
+                        setPlay(false);
+                    });
+                }
+            }
+        } else {
+            setStartDate(new Date());
+            startTimeRef.current = null; // reset jika rpm kembali normal
+        }
+    }, [rpm]);
+    console.log(startDate, "startdate di dashboard");
     // ⏱️ Auto start saat komponen pertama kali render
     useEffect(() => {
         // Hubungkan ke WebSocket dari Node-RED
@@ -508,6 +622,7 @@ export default function Dashboard() {
                                         cursor: "pointer",
                                     }}
                                     onClick={() => {
+                                        setStartDate(new Date());
                                         setPlay(true);
 
                                         // Hubungkan ke WebSocket dari Node-RED
@@ -564,6 +679,10 @@ export default function Dashboard() {
                                                 ]);
                                                 console.log(message);
                                                 setData(message);
+                                                setRpm({
+                                                    value: message[1],
+                                                    ts: Date.now(),
+                                                });
                                             } catch (e) {
                                                 console.error(
                                                     "Invalid JSON:",

@@ -96,7 +96,7 @@
   justify-content: end;
 }
 
-.button-container div {
+.button-container .its {
   list-style: none;
   padding: 5px 10px;
   border-radius: 50px;
