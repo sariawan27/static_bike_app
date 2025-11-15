@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import "react-datepicker/dist/react-datepicker.css";
 import "sweetalert2/dist/sweetalert2.min.css";
 
-const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+const appName = import.meta.env.VITE_APP_NAME || "Static Bike App";
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
