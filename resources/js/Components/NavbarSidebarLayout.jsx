@@ -61,7 +61,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                 data-drawer-toggle="separator-sidebar"
                 aria-controls="separator-sidebar"
                 type="button"
-                className="inline-flex items-center p-2 mt-2 ms-3 text-sm rounded-lg sm:hidden md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 focus:text-black"
+                className="inline-flex items-center p-2 mt-2 ms-3 text-sm rounded-lg hd:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 focus:text-black"
                 onClick={toggleSidebar}
             >
                 <span className="sr-only">Open sidebar</span>
@@ -84,9 +84,10 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
             <aside
                 ref={sidebarRef}
                 id="separator-sidebar"
-                className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform  ${
-                    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-                } sm:translate-x-0`}
+                className={`fixed top-0 left-0 z-50 w-64 h-screen transition-transform
+                    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+                    hd:translate-x-0
+                `}
                 aria-label="Sidebar"
             >
                 <div className="h-full px-3 pb-4 overflow-y-auto" id="nav">
@@ -344,7 +345,11 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
             </aside>
 
             {/* Main Content */}
-            <div className="p-4 sm:ml-64">
+            <div
+                className={`p-4 transition-all duration-300 
+                    hd:ml-64
+                `}
+            >
                 <div className="p-4">{children}</div>
                 <Modal
                     show={openModal}

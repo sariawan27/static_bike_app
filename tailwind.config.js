@@ -18,6 +18,13 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
         },
+        screens: {
+            'hd': '1366px', // >= 1366px
+            'sm': '640px',
+            'md': '768px',
+            'lg': '1024px',
+            'xl': '1280px',
+        }
     },
 
     plugins: [forms, flowbiteReact],
