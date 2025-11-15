@@ -105,7 +105,7 @@ export default function Dashboard() {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value}",
+                    formatter: "{value} KM/H",
                 },
             },
         ],
@@ -716,7 +716,7 @@ export default function Dashboard() {
                                     }}
                                 >
                                     <span className="xl:text-2xl text-xl">
-                                        RPM
+                                        Speed
                                     </span>
                                     <ReactEcharts
                                         option={optionsRPM}
