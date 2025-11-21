@@ -101,7 +101,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                             alt="Flowbite Logo"
                         />
                         <span className="self-center text-xl font-semibold whitespace-nowrap">
-                            Static Bike
+                            Tabungan Energy
                         </span>
                     </a>
                     <ul className="space-y-2 font-medium">
@@ -350,7 +350,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                     hd:ml-64
                 `}
             >
-                <div className="p-4">{children}</div>
+                {children}
                 <Modal
                     show={openModal}
                     size="md"
