@@ -102,7 +102,7 @@ export default function Trending({ trxData, hrcData, filter }) {
         },
         series: [
             {
-                name: "Daya (W)",
+                name: "AVG Speed (Km/h)",
                 type: "line",
                 smooth: true,
                 lineStyle: {
