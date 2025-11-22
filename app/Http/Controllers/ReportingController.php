@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistoryRecord;
 use App\Models\Log;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -15,24 +16,54 @@ class ReportingController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Transaction::query();
+        $hrcId = $request->input('hrc_id');
 
-        // ambil user_id dari user login
-        $query->where('user_id', Auth::id());
+        $hrcData = HistoryRecord::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        // filter tanggal
-        if ($request->filled('startdate') && $request->filled('enddate')) {
-            $query->whereBetween('created_at', [$request->startdate, $request->enddate]);
+        if ($hrcId == null) {
+            // $hrc
+            if (!$hrcData->isEmpty()) {
+                $query = Transaction::query();
+
+                // ambil user_id dari user login
+                $query->where('user_id', Auth::id())->where('hrc_id', $hrcData[0]->id);
+
+                // filter tanggal
+                if ($request->filled('startdate') && $request->filled('enddate')) {
+                    $query->whereBetween('created_at', [$request->startdate, $request->enddate]);
+                }
+
+                $trxData = $query->orderBy('created_at', 'desc')
+                    ->paginate(10)
+                    ->withQueryString();
+            } else {
+                $trxData = [];
+            }
+        } else {
+            $query = Transaction::query();
+
+            // ambil user_id dari user login
+            $query->where('user_id', Auth::id())->when($hrcId, fn($q) => $q->where('hrc_id', $hrcId));
+
+            // filter tanggal
+            if ($request->filled('startdate') && $request->filled('enddate')) {
+                $query->whereBetween('created_at', [$request->startdate, $request->enddate]);
+            }
+
+            $trxData = $query->orderBy('created_at', 'desc')
+                ->paginate(10)
+                ->withQueryString();
         }
 
-        $trxData = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
-
-        return Inertia::render('Reporting/index', [
+        $reportingData = [
             'trxData' => $trxData,
-            'filters' => $request->only(['startdate', 'enddate']),
-        ]);
+            'hrcData' => $hrcData,
+            'filter'  => $hrcId,
+        ];
+
+        return Inertia::render('Reporting/index', $reportingData);
     }
 
     /**

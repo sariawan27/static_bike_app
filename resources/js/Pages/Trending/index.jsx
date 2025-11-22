@@ -49,11 +49,78 @@ export default function Trending({ trxData, hrcData, filter }) {
         (sum, item) => sum + Number(item.energy),
         0
     );
+    let rpmArray = trxData.map((trx) => trx.rpm);
+    let totalRPM =
+        trxData.reduce((sum, item) => sum + Number(item.rpm), 0) /
+        rpmArray.map((x) => x?.rpm > 0).length;
     console.log(hrcData, "HRC DATA");
     console.log(selectedHrc, "SELECTED HRC");
     let hrcFilteredData = hrcData.find((item) => item.id === +filter);
 
     // 👉 [2200, 2760, 3600]
+
+    const optionsRPMTrending = {
+        // title: {
+        //     text: "Distribution of Electricity",
+        // },
+        tooltip: {
+            trigger: "axis",
+            axisPointer: {
+                type: "cross",
+            },
+        },
+        toolbox: {
+            show: false,
+            feature: {
+                saveAsImage: {},
+            },
+        },
+        axisLabel: {
+            fontSize: 30,
+            color: "#000", // warna teks
+            fontWeight: "bold", // tebal
+            rotate: 45, // rotasi jika label terlalu padat
+        },
+        xAxis: {
+            type: "category",
+            boundaryGap: false,
+            axisLabel: {
+                fontSize: 20, // ✅ ukuran font sumbu X diatur di sini
+            },
+            // prettier-ignore
+            data: timestamp,
+        },
+        yAxis: {
+            type: "value",
+            axisLabel: {
+                formatter: "{value} Km/h",
+                fontSize: 20, // ⬅️ Ukuran font Y Axis
+            },
+            axisPointer: {
+                snap: true,
+            },
+        },
+        series: [
+            {
+                name: "Daya (W)",
+                type: "line",
+                smooth: true,
+                lineStyle: {
+                    color: "green",
+                },
+                itemStyle: {
+                    color: "green",
+                },
+                // prettier-ignore
+                data: rpmArray,
+                markArea: {
+                    itemStyle: {
+                        color: "rgba(255, 173, 177, 0.4)",
+                    },
+                },
+            },
+        ],
+    };
 
     const optionsTrending = {
         // title: {
@@ -166,6 +233,46 @@ export default function Trending({ trxData, hrcData, filter }) {
                                 </svg>
                             </div>
                         </Tooltip>
+                    </div>
+                    <div className="mt-3 flex flex-col sm:flex-row">
+                        <Card
+                            className="w-full [&>div]:gap-1"
+                            style={{
+                                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                borderColor: "transparent",
+                            }}
+                        >
+                            <span className="xl:text-2xl text-xl text-black font-semibold">
+                                Data Speed (
+                                {selectedHrc == ""
+                                    ? moment(hrcData[0]?.start)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")
+                                    : moment(hrcFilteredData?.start)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")}{" "}
+                                {selectedHrc == "" ? "" : " - "}
+                                {selectedHrc == ""
+                                    ? moment(hrcData[0]?.end)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")
+                                    : moment(hrcFilteredData?.end)
+                                          .tz("Asia/Jakarta")
+                                          .format("DD MMMM yyyy HH:mm:ss")}
+                                )
+                            </span>
+                            <span className="text-gray-500">
+                                (<b>AVG Speed:</b> {totalRPM.toFixed(4)} Km/h)
+                            </span>
+                            <ReactEcharts
+                                option={optionsRPMTrending}
+                                style={{
+                                    height: "380px",
+                                    width: "100%",
+                                    position: "relative",
+                                }}
+                            />
+                        </Card>
                     </div>
                     <div className="mt-3 flex flex-col sm:flex-row">
                         <Card

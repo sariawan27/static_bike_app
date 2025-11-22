@@ -25,14 +25,14 @@ class TrendingController extends Controller
             // $hrc
             if (!$hrcData->isEmpty()) {
                 $trxData = Transaction::where('user_id', Auth::id())->where('hrc_id', $hrcData[0]->id)
-                    ->orderBy('created_at', 'desc')
+                    ->orderBy('created_at', 'asc')
                     ->get();
             } else {
                 $trxData = [];
             }
         } else {
             $trxData = Transaction::where('user_id', Auth::id())->when($hrcId, fn($q) => $q->where('hrc_id', $hrcId))
-                ->orderBy('created_at', 'desc')
+                ->orderBy('created_at', 'asc')
                 ->get();
         }
 
