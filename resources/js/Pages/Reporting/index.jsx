@@ -5,9 +5,11 @@ import { Head, Link, router } from "@inertiajs/react";
 import {
     Button,
     Card,
+    Label,
     Modal,
     ModalBody,
     ModalHeader,
+    Select,
     Spinner,
     Table,
     TableBody,
@@ -15,11 +17,15 @@ import {
     TableHead,
     TableHeadCell,
     TableRow,
+    Tooltip,
 } from "flowbite-react";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
+import moment from "moment-timezone";
 
-export default function Reporting({ trxData, filters }) {
+export default function Reporting({ trxData, hrcData, filter }) {
+    console.log(trxData);
+    const [openModalRekamData, setOpenModalRekamData] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openFilterModal, setOpenFilterModal] = useState(false);
 
@@ -31,6 +37,19 @@ export default function Reporting({ trxData, filters }) {
     const [errors, setErrors] = React.useState({});
 
     const [loading, setLoading] = useState(false);
+
+    const [selectedHrc, setSelectedHrc] = React.useState(filter || "");
+    const handleSearch = () => {
+        setOpenModalRekamData(false);
+
+        if (!selectedHrc) return;
+
+        router.get(
+            route("reporting.index"), // pastikan route name sesuai
+            { hrc_id: selectedHrc }, // 👈 param terkirim sebagai query string
+            { preserveState: true, replace: true }
+        );
+    };
 
     const handlePageChange = (url) => {
         if (!url) return;
@@ -63,19 +82,41 @@ export default function Reporting({ trxData, filters }) {
             <div>
                 <div className="mx-auto max-w-8xl sm:px-6 lg:px-8">
                     <div className="p-2 text-white text-3xl ">Reporting</div>
-                    <div className="text-right mt-1">
+                    <div className="text-right mt-1 button-container">
                         <div
-                            className="p-3 buttonwrapper text-white text-md text-right"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setOpenFilterModal(true)}
+                            className="p-3 text-white text-md text-right its"
+                            // style={{ cursor: "pointer" }}
+                            // onClick={() => setOpenModal(true)}
                         >
                             {new Date().toLocaleDateString("id-ID", {
-                                timeZone: "Asia/Jakarta",
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
                             })}
                         </div>
+
+                        <Tooltip content="Filter" placement="bottom">
+                            <div
+                                className="p-3 text-white text-md text-right its"
+                                // style={{ cursor: "pointer" }}
+                                onClick={() => setOpenModalRekamData(true)}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    className="size-6"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+                                    />
+                                </svg>
+                            </div>
+                        </Tooltip>
                     </div>
                     <div className="mt-4 flex flex-col sm:flex-row gap-3">
                         <Card
@@ -326,6 +367,63 @@ export default function Reporting({ trxData, filters }) {
                                         </Button>
                                     </div>
                                 </form>
+                            </div>
+                        </ModalBody>
+                    </Modal>
+
+                    <Modal
+                        show={openModalRekamData}
+                        size="3xl"
+                        popup
+                        position="top-center"
+                        onClose={() => setOpenModalRekamData(false)}
+                    >
+                        <ModalHeader />
+                        <ModalBody>
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                                    Filter Rekam Data
+                                </h3>
+                                <div>
+                                    <Label
+                                        htmlFor="hrcFilter"
+                                        value="Pilih HRC"
+                                    />
+                                    <Select
+                                        id="hrcFilter"
+                                        value={selectedHrc}
+                                        onChange={(e) =>
+                                            setSelectedHrc(e.target.value)
+                                        }
+                                    >
+                                        {/* <option value="">-- Semua HRC --</option> */}
+                                        {hrcData.map((hrc) => (
+                                            <option key={hrc.id} value={hrc.id}>
+                                                {moment(hrc.start)
+                                                    .tz("Asia/Jakarta")
+                                                    .format(
+                                                        "DD-MM-yyyy HH:mm:ss"
+                                                    )}{" "}
+                                                -{" "}
+                                                {moment(hrc.end)
+                                                    .tz("Asia/Jakarta")
+                                                    .format(
+                                                        "DD-MM-yyyy HH:mm:ss"
+                                                    )}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </div>
+                                <div className="flex justify-end">
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        style={{ backgroundColor: "#181745" }}
+                                        onClick={handleSearch}
+                                    >
+                                        Search Data
+                                    </Button>
+                                </div>
                             </div>
                         </ModalBody>
                     </Modal>
