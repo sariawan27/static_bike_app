@@ -16,8 +16,12 @@ import React from "react";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
 import moment from "moment-timezone";
+import html2canvas from "html2canvas";
+import { usePage } from "@inertiajs/react";
 
 export default function Trending({ trxData, hrcData, filter }) {
+    const { auth } = usePage().props;
+    const user = auth.user;
     console.log(trxData);
     console.log(window.location.href.split("/").filter(Boolean)[2], "Trending");
     const { get } = useForm();
@@ -185,6 +189,56 @@ export default function Trending({ trxData, hrcData, filter }) {
         ],
     };
 
+    //download speed chart
+    const cardSpeedRef = React.useRef(null);
+    const cardEnergyRef = React.useRef(null);
+    const [downloadingSpeed, setDownloadingSpeed] = React.useState(false);
+    const [downloadingEnergy, setDownloadingEnergy] = React.useState(false);
+
+    const handleDownloadSpeed = async () => {
+        setDownloadingSpeed(true);
+
+        setTimeout(async () => {
+            try {
+                const canvas = await html2canvas(cardSpeedRef.current, {
+                    scale: 2, // biar lebih tajam
+                    useCORS: true,
+                });
+
+                const dataUrl = canvas.toDataURL("image/png");
+
+                const link = document.createElement("a");
+                link.download = user.name + "-speedchart.png";
+                link.href = dataUrl;
+                link.click();
+            } finally {
+                setDownloadingSpeed(false);
+            }
+        }, 150);
+    };
+
+    const handleDownloadEnergy = async () => {
+        setDownloadingEnergy(true);
+
+        setTimeout(async () => {
+            try {
+                const canvas = await html2canvas(cardEnergyRef.current, {
+                    scale: 2, // biar lebih tajam
+                    useCORS: true,
+                });
+
+                const dataUrl = canvas.toDataURL("image/png");
+
+                const link = document.createElement("a");
+                link.download = user.name + "-energychart.png";
+                link.href = dataUrl;
+                link.click();
+            } finally {
+                setDownloadingEnergy(false);
+            }
+        }, 150);
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -236,6 +290,7 @@ export default function Trending({ trxData, hrcData, filter }) {
                     </div>
                     <div className="mt-3 flex flex-col sm:flex-row">
                         <Card
+                            ref={cardSpeedRef}
                             className="w-full [&>div]:gap-1"
                             style={{
                                 backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -264,6 +319,14 @@ export default function Trending({ trxData, hrcData, filter }) {
                             <span className="text-gray-500">
                                 (<b>AVG Speed:</b> {totalRPM.toFixed(4)} Km/h)
                             </span>
+                            {!downloadingSpeed && (
+                                <button
+                                    className="xl:text-lg text-md text-black font-semibold text-left"
+                                    onClick={handleDownloadSpeed}
+                                >
+                                    Download
+                                </button>
+                            )}
                             <ReactEcharts
                                 option={optionsRPMTrending}
                                 style={{
@@ -276,6 +339,7 @@ export default function Trending({ trxData, hrcData, filter }) {
                     </div>
                     <div className="mt-3 flex flex-col sm:flex-row">
                         <Card
+                            ref={cardEnergyRef}
                             className="w-full [&>div]:gap-1"
                             style={{
                                 backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -305,6 +369,14 @@ export default function Trending({ trxData, hrcData, filter }) {
                                 (<b>Energy Produced:</b>{" "}
                                 {totalEnergy.toFixed(4)} J)
                             </span>
+                            {!downloadingEnergy && (
+                                <button
+                                    className="xl:text-lg text-md text-black font-semibold text-left"
+                                    onClick={handleDownloadEnergy}
+                                >
+                                    Download
+                                </button>
+                            )}
                             <ReactEcharts
                                 option={optionsTrending}
                                 style={{
