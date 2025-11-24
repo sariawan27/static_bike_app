@@ -274,14 +274,16 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                 </h3>
                                 <div className="flex justify-center gap-4">
                                     <Button
-                                        color="default"
-                                        onClick={() => setOpenModal(false)}
-                                    >
-                                        Pdf
-                                    </Button>
-                                    <Button
                                         color="green"
-                                        onClick={() => setOpenModal(false)}
+                                        onClick={() => {
+                                            window.open(
+                                                "http://localhost:8000/export-record?hrc_id=" +
+                                                    selectedHrc,
+                                                "_blank"
+                                            );
+
+                                            setOpenModal(false);
+                                        }}
                                     >
                                         Excel
                                     </Button>

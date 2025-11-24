@@ -1,12 +1,17 @@
 <?php
 
+use App\Exports\TransactionsExport;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\TrendingController;
 use App\Http\Controllers\UsersController;
+use Carbon\Carbon;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\Request;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -43,5 +48,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/reporting', [ReportingController::class, 'index'])->name('reporting.index');
 });
+
+Route::get('/export-record', function (Request $req) {
+
+    $name = auth()->user()->name;
+
+    return Excel::download(
+        new TransactionsExport($req->all()),
+        "record_{$name}.xlsx"
+    );
+})->name('reporting.export');
+
 
 require __DIR__ . '/auth.php';
