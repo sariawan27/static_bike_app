@@ -57,11 +57,12 @@ const getRankBg = (rank) => {
     }
 };
 
-export default function Dashboard() {
+export default function Dashboard({ ranking }) {
     console.log(
         window.location.href.split("/").filter(Boolean)[2],
         "Dashboard"
     );
+    console.log(ranking, "dashboard props ranking");
 
     const [openModal, setOpenModal] = useState(false);
     const [rpm, setRpm] = useState({ value: null, ts: Date.now() });
@@ -136,8 +137,8 @@ export default function Dashboard() {
                     width: 25,
                     lineStyle: {
                         color: [
-                            [0.5, "#67e0e3"],
-                            [0.8, "#f8c630"],
+                            [0.26, "#67e0e3"],
+                            [0.42, "#f8c630"],
                             [1, "#fd666d"],
                         ],
                         width: 25,
@@ -154,8 +155,8 @@ export default function Dashboard() {
                 },
                 data: [
                     {
-                        // value: data[1] ? data[1] : 0,
-                        value: 100,
+                        value: data[1] ? data[1] : 0,
+                        // value: 100,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -197,17 +198,36 @@ export default function Dashboard() {
                     backgroundColor: "inherit",
                     borderRadius: 3,
                     formatter: function (value) {
-                        return `{main|${value} KM/H}\n` + `{sub|(${300} RPM)}`;
+                        return (
+                            `{main|${value} KM/H}\n` +
+                            `{sub|(${
+                                data[data?.length - 1]
+                                    ? data[data?.length - 1]
+                                    : 0
+                            } RPM)}`
+                        );
                     },
                     rich: {
                         main: {
                             fontSize: 30, // angka utama besar
                             fontWeight: "bold",
-                            color: "#fd666d",
+                            color: data[1]
+                                ? +data[1] >= +"42"
+                                    ? "#fd666d"
+                                    : +data[1] >= +"26"
+                                    ? "#fd666d"
+                                    : "#fff"
+                                : "#fff",
                         },
                         sub: {
                             fontSize: 20, // speedValue lebih kecil
-                            color: "#fd666d",
+                            color: data[1]
+                                ? +data[1] >= +"42"
+                                    ? "#fd666d"
+                                    : +data[1] >= +"26"
+                                    ? "#fd666d"
+                                    : "#fff"
+                                : "#fff",
                             padding: [4, 0, 0, 0],
                         },
                     },
@@ -435,20 +455,18 @@ export default function Dashboard() {
         ],
     };
     const getBatteryPercentage = (v) => {
-        if (v >= 14.6) return 100; // charging
-        if (v >= 13.6) return 100; // resting
-        if (v >= 13.4) return 99;
-        if (v >= 13.3) return 90;
-        if (v >= 13.2) return 70;
-        if (v >= 13.1) return 40;
-        if (v >= 13.0) return 30;
-        if (v >= 12.9) return 20;
-        if (v >= 12.8) return 17;
-        if (v >= 12.5) return 14;
-        if (v >= 12.0) return 9;
-        if (v >= 10.0) return 0;
+        if (v >= 14) return 100; // charging
+        if (v >= 13.75) return 50;
+        if (v >= 13.25) return 25;
 
         return 0; // default safety
+    };
+    const formatDuration = (seconds) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        return `${h} h ${m} m ${s} s`;
     };
 
     const [run, setRun] = useState(false);
@@ -688,7 +706,7 @@ export default function Dashboard() {
                                         d="m10.051 8.102-3.778.322-1.994 1.994a.94.94 0 0 0 .533 1.6l2.698.316m8.39 1.617-.322 3.78-1.994 1.994a.94.94 0 0 1-1.595-.533l-.4-2.652m8.166-11.174a1.366 1.366 0 0 0-1.12-1.12c-1.616-.279-4.906-.623-6.38.853-1.671 1.672-5.211 8.015-6.31 10.023a.932.932 0 0 0 .162 1.111l.828.835.833.832a.932.932 0 0 0 1.111.163c2.008-1.102 8.35-4.642 10.021-6.312 1.475-1.478 1.133-4.77.855-6.385Zm-2.961 3.722a1.88 1.88 0 1 1-3.76 0 1.88 1.88 0 0 1 3.76 0Z"
                                     />
                                 </svg>{" "}
-                                Top Score
+                                Highlight Score
                             </div>
                             <Tooltip content="Fullscreen" placement="bottom">
                                 <div
@@ -735,77 +753,89 @@ export default function Dashboard() {
 
                                     {/* Top 3 Scores */}
                                     <div className="space-y-3 mt-2">
-                                        {topScores.map((score, index) => (
-                                            <div
-                                                key={score.rank}
-                                                className={`flex items-center gap-3 p-3 rounded-xl border ${getRankBg(
-                                                    score.rank
-                                                )} transition-all duration-300 hover:scale-[1.02] animate-slide-up`}
-                                                style={{
-                                                    animationDelay: `${
-                                                        index * 100
-                                                    }ms`,
-                                                }}
-                                            >
-                                                {/* Rank Icon */}
-                                                <div className="flex-shrink-0">
-                                                    {getRankIcon(score.rank)}
-                                                </div>
-
-                                                {/* Rank Number */}
-                                                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                                                    <span className="text-sm font-bold text-secondary-foreground">
-                                                        {score.rank}
-                                                    </span>
-                                                </div>
-
-                                                {/* Name */}
-                                                <div className="flex-1">
-                                                    <span
-                                                        className="font-bold block truncate min-w-0 max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px] 2xl:max-w-[320px]"
+                                        {!ranking ? (
+                                            <></>
+                                        ) : (
+                                            ranking
+                                                .slice(0, 3)
+                                                .map((score, index) => (
+                                                    <div
+                                                        key={index + 1}
+                                                        className={`flex items-center gap-3 p-3 rounded-xl border ${getRankBg(
+                                                            index + 1
+                                                        )} transition-all duration-300 hover:scale-[1.02] animate-slide-up`}
                                                         style={{
-                                                            color: "#2d4053",
-                                                            overflow: "hidden",
-                                                            textOverflow:
-                                                                "ellipsis",
-                                                            whiteSpace:
-                                                                "break-space",
+                                                            animationDelay: `${
+                                                                index * 100
+                                                            }ms`,
                                                         }}
                                                     >
-                                                        {(() => {
-                                                            const words =
-                                                                score.name.split(
-                                                                    " "
-                                                                );
-                                                            return words.length >
-                                                                2
-                                                                ? words
-                                                                      .slice(
-                                                                          0,
-                                                                          2
-                                                                      )
-                                                                      .join(
-                                                                          " "
-                                                                      ) + "..."
-                                                                : score.name;
-                                                        })()}
-                                                    </span>
-                                                </div>
+                                                        {/* Rank Icon */}
+                                                        <div className="flex-shrink-0">
+                                                            {getRankIcon(
+                                                                index + 1
+                                                            )}
+                                                        </div>
 
-                                                {/* Score */}
-                                                <div className="text-right">
-                                                    <p className="font-display font-bold text-primary">
-                                                        {score.score.toLocaleString()}{" "}
-                                                        <span className="text-xs text-muted-foreground ml-1">
-                                                            Wh
-                                                        </span>
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground ml-1">
-                                                        10 m 10 s
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
+                                                        {/* Rank Number */}
+                                                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                                            <span className="text-sm font-bold text-secondary-foreground">
+                                                                {index + 1}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Name */}
+                                                        <div className="flex-1">
+                                                            <span
+                                                                className="font-bold block truncate min-w-0 max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px] 2xl:max-w-[320px]"
+                                                                style={{
+                                                                    color: "#2d4053",
+                                                                    overflow:
+                                                                        "hidden",
+                                                                    textOverflow:
+                                                                        "ellipsis",
+                                                                    whiteSpace:
+                                                                        "break-space",
+                                                                }}
+                                                            >
+                                                                {(() => {
+                                                                    const words =
+                                                                        score.name.split(
+                                                                            " "
+                                                                        );
+                                                                    return words.length >
+                                                                        2
+                                                                        ? words
+                                                                              .slice(
+                                                                                  0,
+                                                                                  2
+                                                                              )
+                                                                              .join(
+                                                                                  " "
+                                                                              ) +
+                                                                              "..."
+                                                                        : score.name;
+                                                                })()}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Score */}
+                                                        <div className="text-right">
+                                                            <p className="font-display font-bold text-primary">
+                                                                {score.total_energy.toLocaleString()}{" "}
+                                                                <span className="text-xs text-muted-foreground ml-1">
+                                                                    Wh
+                                                                </span>
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground ml-1">
+                                                                {formatDuration(
+                                                                    score.duration
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                        )}
                                     </div>
                                 </span>
 
@@ -815,7 +845,7 @@ export default function Dashboard() {
                                     customization={{
                                         batteryBody: {
                                             fill: "silver",
-                                            strokeColor: "silver",
+                                            strokeColor: "#453F5F",
                                             strokeWidth: 2,
                                         },
                                         batteryCap: {
@@ -825,7 +855,9 @@ export default function Dashboard() {
                                             strokeColor: "#453E5F",
                                             strokeWidth: 0,
                                         },
-                                        batteryMeter: {},
+                                        batteryMeter: {
+                                            noOfCells: 4,
+                                        },
                                         readingText: {
                                             darkContrastColor: "white",
                                             fontFamily: "Arial",
@@ -969,6 +1001,15 @@ export default function Dashboard() {
                                                         value: message[1],
                                                         ts: Date.now(),
                                                     });
+                                                    if (message[1] >= 42) {
+                                                        Swal.fire({
+                                                            timer: 2000,
+                                                            title: "Kecepatan tinggi!",
+                                                            text: "Kurangi kecepatan Anda!",
+                                                            icon: "warning",
+                                                            showConfirmButton: false,
+                                                        });
+                                                    }
                                                 } catch (e) {
                                                     console.error(
                                                         "Invalid JSON:",
@@ -1089,7 +1130,7 @@ export default function Dashboard() {
             </div>
             <Modal
                 show={openModal}
-                size="md"
+                size="lg"
                 popup
                 position="top-center"
                 onClose={() => setOpenModal(false)}
@@ -1099,9 +1140,14 @@ export default function Dashboard() {
                 <ModalBody>
                     <div className="space-y-6">
                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-                            Top Score
+                            Highlight Score
                         </h3>
-                        <div>
+                        <div
+                            className="overflow-x-auto"
+                            style={{
+                                height: "320px",
+                            }}
+                        >
                             <Table striped>
                                 <TableHead
                                     style={{ backgroundColor: "#1B2453" }}
@@ -1130,34 +1176,157 @@ export default function Dashboard() {
                                     >
                                         Energy Produced
                                     </TableHeadCell>
-                                </TableHead>
-                                <TableBody className="divide-y">
-                                    <TableRow
-                                        className="dark:border-gray-700 dark:bg-gray-800"
-                                        style={{ backgroundColor: "#D4AF37" }}
+                                    <TableHeadCell
+                                        style={{
+                                            backgroundColor: "#1B2453",
+                                            color: "white",
+                                        }}
                                     >
-                                        <TableCell>1</TableCell>
-                                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            Kesel Coding
-                                        </TableCell>
-                                        <TableCell>100 W</TableCell>
-                                    </TableRow>
-                                    <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <TableCell>2</TableCell>
-                                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            Aji
-                                        </TableCell>
-                                        <TableCell>100 W</TableCell>
-                                    </TableRow>
-                                    <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <TableCell>3</TableCell>
-                                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            Bambang
-                                        </TableCell>
-                                        <TableCell>50 W</TableCell>
-                                    </TableRow>
+                                        Time
+                                    </TableHeadCell>
+                                </TableHead>
+                                <TableBody
+                                    className="divide-y"
+                                    style={{
+                                        maxHeight: "400px",
+                                    }}
+                                >
+                                    {ranking ? (
+                                        ranking.map((rank, index) => (
+                                            <>
+                                                <TableRow
+                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                    style={{
+                                                        backgroundColor:
+                                                            index + 1 == 1
+                                                                ? "#D4AF37"
+                                                                : index + 1 == 2
+                                                                ? "#C0C0C0"
+                                                                : index + 1 == 3
+                                                                ? "#CD7F32"
+                                                                : "transparent",
+                                                    }}
+                                                >
+                                                    <TableCell>
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                        {rank.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.total_energy}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.duration}
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow
+                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                    style={{
+                                                        backgroundColor:
+                                                            index + 1 == 1
+                                                                ? "#D4AF37"
+                                                                : index + 1 == 2
+                                                                ? "#C0C0C0"
+                                                                : index + 1 == 3
+                                                                ? "#CD7F32"
+                                                                : "transparent",
+                                                    }}
+                                                >
+                                                    <TableCell>
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                        {rank.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.total_energy}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.duration}
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow
+                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                    style={{
+                                                        backgroundColor:
+                                                            index + 1 == 1
+                                                                ? "#D4AF37"
+                                                                : index + 1 == 2
+                                                                ? "#C0C0C0"
+                                                                : index + 1 == 3
+                                                                ? "#CD7F32"
+                                                                : "transparent",
+                                                    }}
+                                                >
+                                                    <TableCell>
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                        {rank.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.total_energy}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.duration}
+                                                    </TableCell>
+                                                </TableRow>
+                                            </>
+                                        ))
+                                    ) : (
+                                        <></>
+                                    )}
                                 </TableBody>
                             </Table>
+                        </div>
+
+                        <div
+                            className={`flex items-center gap-3 p-3 rounded-xl border  border-border transition-all duration-300 hover:scale-[1.02] animate-slide-up`}
+                        >
+                            {/* Rank Number */}
+                            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                <span className="text-sm font-bold text-secondary-foreground">
+                                    100
+                                </span>
+                            </div>
+
+                            {/* Name */}
+                            <div className="flex-1">
+                                <span
+                                    className="font-bold block truncate min-w-0 max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px] 2xl:max-w-[320px]"
+                                    style={{
+                                        color: "#2d4053",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "break-space",
+                                    }}
+                                >
+                                    kesel coding
+                                    {/* {(() => {
+                                        const words = score.name.split(" ");
+                                        return words.length > 2
+                                            ? words.slice(0, 2).join(" ") +
+                                                  "..."
+                                            : score.name;
+                                    })()} */}
+                                </span>
+                            </div>
+
+                            {/* Score */}
+                            <div className="text-right">
+                                <p className="font-display font-bold text-primary">
+                                    {/* {score.total_energy.toLocaleString()}{" "} */}
+                                    1000
+                                    <span className="text-xs text-muted-foreground ml-1">
+                                        Wh
+                                    </span>
+                                </p>
+                                <p className="text-xs text-muted-foreground ml-1">
+                                    {/* {formatDuration(score.duration)} */}0 h
+                                    0 m 1 s
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </ModalBody>
