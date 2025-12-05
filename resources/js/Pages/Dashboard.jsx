@@ -121,6 +121,7 @@ export default function Dashboard({ ranking }) {
                 endAngle: 0,
                 center: ["50%", "58%"],
                 splitNumber: 10,
+                max: 43,
                 // itemStyle: {
                 //     color: "#41b8d5",
                 //     shadowColor: "rgba(0,138,255,0.45)",
@@ -138,8 +139,8 @@ export default function Dashboard({ ranking }) {
                     width: 25,
                     lineStyle: {
                         color: [
-                            [0.26, "#67e0e3"],
-                            [0.42, "#f8c630"],
+                            [0.73, "#67e0e3"],
+                            [0.9, "#f8c630"],
                             [1, "#fd666d"],
                         ],
                         width: 25,
@@ -216,7 +217,7 @@ export default function Dashboard({ ranking }) {
                                 ? +data[1] >= +"42"
                                     ? "#fd666d"
                                     : +data[1] >= +"26"
-                                    ? "#67e0e3"
+                                    ? "#f8c630"
                                     : "#fff"
                                 : "#fff",
                         },
@@ -226,7 +227,7 @@ export default function Dashboard({ ranking }) {
                                 ? +data[1] >= +"42"
                                     ? "#fd666d"
                                     : +data[1] >= +"26"
-                                    ? "#67e0e3"
+                                    ? "#f8c630"
                                     : "#fff"
                                 : "#fff",
                             padding: [4, 0, 0, 0],
@@ -1003,7 +1004,7 @@ export default function Dashboard({ ranking }) {
                                                         value: message[1],
                                                         ts: Date.now(),
                                                     });
-                                                    if (message[1] >= 38) {
+                                                    if (message[1] >= 39) {
                                                         Swal.fire({
                                                             timer: 2000,
                                                             title: "Kecepatan tinggi!",
