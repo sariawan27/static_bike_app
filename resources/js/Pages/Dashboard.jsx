@@ -1001,7 +1001,7 @@ export default function Dashboard({ ranking }) {
                                                         value: message[1],
                                                         ts: Date.now(),
                                                     });
-                                                    if (message[1] >= 10) {
+                                                    if (message[1] >= 38) {
                                                         Swal.fire({
                                                             timer: 2000,
                                                             title: "Kecepatan tinggi!",
