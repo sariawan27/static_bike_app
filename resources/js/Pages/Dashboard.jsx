@@ -75,6 +75,7 @@ export default function Dashboard({ ranking }) {
     const [energy, setEnergy] = useState(0);
     const [daya, setDaya] = useState([]);
     const [timestamp, setTimestamp] = useState([]);
+    const [myScore, setMyScore] = useState(null);
 
     const user = usePage().props.auth.user;
 
@@ -619,6 +620,7 @@ export default function Dashboard({ ranking }) {
             setStartDate(new Date());
             startTimeRef.current = null; // reset jika rpm kembali normal
         }
+        setMyScore(ranking?.find((item) => item.user_id === user.id));
     }, [rpm]);
     console.log(startDate, "startdate di dashboard");
     // ⏱️ Auto start saat komponen pertama kali render
@@ -1182,7 +1184,7 @@ export default function Dashboard({ ranking }) {
                                             color: "white",
                                         }}
                                     >
-                                        Time
+                                        Durasi
                                     </TableHeadCell>
                                 </TableHead>
                                 <TableBody
@@ -1217,59 +1219,9 @@ export default function Dashboard({ ranking }) {
                                                         {rank.total_energy}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {rank.duration}
-                                                    </TableCell>
-                                                </TableRow>
-                                                <TableRow
-                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
-                                                    style={{
-                                                        backgroundColor:
-                                                            index + 1 == 1
-                                                                ? "#D4AF37"
-                                                                : index + 1 == 2
-                                                                ? "#C0C0C0"
-                                                                : index + 1 == 3
-                                                                ? "#CD7F32"
-                                                                : "transparent",
-                                                    }}
-                                                >
-                                                    <TableCell>
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                        {rank.name}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {rank.total_energy}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {rank.duration}
-                                                    </TableCell>
-                                                </TableRow>
-                                                <TableRow
-                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
-                                                    style={{
-                                                        backgroundColor:
-                                                            index + 1 == 1
-                                                                ? "#D4AF37"
-                                                                : index + 1 == 2
-                                                                ? "#C0C0C0"
-                                                                : index + 1 == 3
-                                                                ? "#CD7F32"
-                                                                : "transparent",
-                                                    }}
-                                                >
-                                                    <TableCell>
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                        {rank.name}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {rank.total_energy}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {rank.duration}
+                                                        {formatDuration(
+                                                            rank.duration
+                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             </>
@@ -1287,7 +1239,11 @@ export default function Dashboard({ ranking }) {
                             {/* Rank Number */}
                             <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
                                 <span className="text-sm font-bold text-secondary-foreground">
-                                    100
+                                    {myScore != null
+                                        ? ranking?.findIndex(
+                                              (item) => item.user_id === user.id
+                                          ) + 1
+                                        : "-"}
                                 </span>
                             </div>
 
@@ -1302,14 +1258,18 @@ export default function Dashboard({ ranking }) {
                                         whiteSpace: "break-space",
                                     }}
                                 >
-                                    kesel coding
-                                    {/* {(() => {
-                                        const words = score.name.split(" ");
+                                    {(() => {
+                                        const words =
+                                            myScore != null
+                                                ? myScore.name.split(" ")
+                                                : user.name.split(" ");
                                         return words.length > 2
                                             ? words.slice(0, 2).join(" ") +
                                                   "..."
-                                            : score.name;
-                                    })()} */}
+                                            : myScore != null
+                                            ? myScore.name.split(" ")
+                                            : user.name.split(" ");
+                                    })()}
                                 </span>
                             </div>
 
@@ -1317,14 +1277,17 @@ export default function Dashboard({ ranking }) {
                             <div className="text-right">
                                 <p className="font-display font-bold text-primary">
                                     {/* {score.total_energy.toLocaleString()}{" "} */}
-                                    1000
+                                    {myScore != null
+                                        ? myScore.total_energy.toLocaleString()
+                                        : 0}
                                     <span className="text-xs text-muted-foreground ml-1">
                                         Wh
                                     </span>
                                 </p>
                                 <p className="text-xs text-muted-foreground ml-1">
-                                    {/* {formatDuration(score.duration)} */}0 h
-                                    0 m 1 s
+                                    {myScore != null
+                                        ? formatDuration(myScore.duration)
+                                        : 0}
                                 </p>
                             </div>
                         </div>
