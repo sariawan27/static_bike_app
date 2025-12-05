@@ -215,7 +215,7 @@ export default function Dashboard({ ranking }) {
                                 ? +data[1] >= +"42"
                                     ? "#fd666d"
                                     : +data[1] >= +"26"
-                                    ? "#fd666d"
+                                    ? "#67e0e3"
                                     : "#fff"
                                 : "#fff",
                         },
@@ -225,7 +225,7 @@ export default function Dashboard({ ranking }) {
                                 ? +data[1] >= +"42"
                                     ? "#fd666d"
                                     : +data[1] >= +"26"
-                                    ? "#fd666d"
+                                    ? "#67e0e3"
                                     : "#fff"
                                 : "#fff",
                             padding: [4, 0, 0, 0],
@@ -1001,7 +1001,7 @@ export default function Dashboard({ ranking }) {
                                                         value: message[1],
                                                         ts: Date.now(),
                                                     });
-                                                    if (message[1] >= 42) {
+                                                    if (message[1] >= 10) {
                                                         Swal.fire({
                                                             timer: 2000,
                                                             title: "Kecepatan tinggi!",
