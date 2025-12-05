@@ -1,6 +1,19 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, usePage } from "@inertiajs/react";
-import { Button, Card, Tooltip } from "flowbite-react";
+import {
+    Button,
+    Card,
+    Modal,
+    ModalBody,
+    ModalHeader,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeadCell,
+    TableRow,
+    Tooltip,
+} from "flowbite-react";
 import ReactEcharts from "echarts-for-react";
 import { HiPause, HiPlay } from "react-icons/hi";
 import Tour from "reactour";
@@ -9,17 +22,54 @@ import moment from "moment-timezone";
 
 import { io } from "socket.io-client";
 import Swal from "sweetalert2";
+import BatteryGauge from "react-battery-gauge";
+import { Trophy, Medal, Award } from "lucide-react";
 
-export default function Dashboard() {
+const topScores = [
+    { rank: 1, name: "Ahmad Diallo Stephant Williz", score: 2850 },
+    { rank: 2, name: "Budi", score: 2340 },
+    { rank: 3, name: "Citra", score: 1980 },
+];
+
+const getRankIcon = (rank) => {
+    switch (rank) {
+        case 1:
+            return <Trophy className="w-5 h-5 text-gold" />;
+        case 2:
+            return <Medal className="w-5 h-5 text-silver" />;
+        case 3:
+            return <Award className="w-5 h-5 text-bronze" />;
+        default:
+            return null;
+    }
+};
+
+const getRankBg = (rank) => {
+    switch (rank) {
+        case 1:
+            return "bg-gold/10 border-gold/30";
+        case 2:
+            return "bg-silver/10 border-silver/30";
+        case 3:
+            return "bg-bronze/10 border-bronze/30";
+        default:
+            return "bg-card border-border";
+    }
+};
+
+export default function Dashboard({ ranking }) {
     console.log(
         window.location.href.split("/").filter(Boolean)[2],
         "Dashboard"
     );
+    console.log(ranking, "dashboard props ranking");
 
+    const [openModal, setOpenModal] = useState(false);
     const [rpm, setRpm] = useState({ value: null, ts: Date.now() });
     const [startDate, setStartDate] = useState(null);
     const startTimeRef = useRef(null);
     const [data, setData] = useState([]);
+    const [dataBattery, setDataBattery] = useState([]);
     const [voltage, setVoltage] = useState([]);
     const [current, setCurrent] = useState([]);
     const [energy, setEnergy] = useState(0);
@@ -70,28 +120,35 @@ export default function Dashboard() {
                 endAngle: 0,
                 center: ["50%", "58%"],
                 splitNumber: 10,
-                itemStyle: {
-                    color: "#41b8d5",
-                    shadowColor: "rgba(0,138,255,0.45)",
-                    shadowBlur: 10,
-                    shadowOffsetX: 2,
-                    shadowOffsetY: 2,
-                },
-                progress: {
-                    width: 25,
-                    show: true,
-                    overlap: true,
-                    roundCap: false,
-                },
+                // itemStyle: {
+                //     color: "#41b8d5",
+                //     shadowColor: "rgba(0,138,255,0.45)",
+                //     shadowBlur: 10,
+                //     shadowOffsetX: 2,
+                //     shadowOffsetY: 2,
+                // },
+                // progress: {
+                //     width: 25,
+                //     show: true,
+                //     overlap: true,
+                //     roundCap: false,
+                // },
                 axisLine: {
                     width: 25,
                     lineStyle: {
-                        color: [[1, "#6ce5e8"]],
+                        color: [
+                            [0.26, "#67e0e3"],
+                            [0.42, "#f8c630"],
+                            [1, "#fd666d"],
+                        ],
                         width: 25,
                     },
                     roundCap: false,
                 },
                 pointer: {
+                    itemStyle: {
+                        color: "auto",
+                    },
                     width: 5,
                     length: "80%",
                     offsetCenter: [0, "8%"],
@@ -99,6 +156,7 @@ export default function Dashboard() {
                 data: [
                     {
                         value: data[1] ? data[1] : 0,
+                        // value: 100,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -132,13 +190,47 @@ export default function Dashboard() {
                     subtext: "Fake Data",
                 },
                 detail: {
+                    valueAnimation: true,
                     width: 40,
                     height: 14,
                     fontSize: 14,
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} KM/H",
+                    formatter: function (value) {
+                        return (
+                            `{main|${value} KM/H}\n` +
+                            `{sub|(${
+                                data[data?.length - 1]
+                                    ? data[data?.length - 1]
+                                    : 0
+                            } RPM)}`
+                        );
+                    },
+                    rich: {
+                        main: {
+                            fontSize: 30, // angka utama besar
+                            fontWeight: "bold",
+                            color: data[1]
+                                ? +data[1] >= +"42"
+                                    ? "#fd666d"
+                                    : +data[1] >= +"26"
+                                    ? "#fd666d"
+                                    : "#fff"
+                                : "#fff",
+                        },
+                        sub: {
+                            fontSize: 20, // speedValue lebih kecil
+                            color: data[1]
+                                ? +data[1] >= +"42"
+                                    ? "#fd666d"
+                                    : +data[1] >= +"26"
+                                    ? "#fd666d"
+                                    : "#fff"
+                                : "#fff",
+                            padding: [4, 0, 0, 0],
+                        },
+                    },
                 },
             },
         ],
@@ -302,7 +394,7 @@ export default function Dashboard() {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} J",
+                    formatter: "{value} W",
                 },
             },
         ],
@@ -362,6 +454,20 @@ export default function Dashboard() {
             },
         ],
     };
+    const getBatteryPercentage = (v) => {
+        if (v >= 14) return 100; // charging
+        if (v >= 13.75) return 50;
+        if (v >= 13.25) return 25;
+
+        return 0; // default safety
+    };
+    const formatDuration = (seconds) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        return `${h} h ${m} m ${s} s`;
+    };
 
     const [run, setRun] = useState(false);
     const [play, setPlay] = useState(false);
@@ -370,6 +476,15 @@ export default function Dashboard() {
         {
             selector: "#play-button",
             content: "Klik tombol ini untuk memulai record!",
+        },
+        {
+            selector: "#indikator-battery",
+            content: "Prosentase baterai realtime.",
+        },
+        {
+            selector: "#top-leaders",
+            content:
+                "Top Leaderboard: Lihat peringkat tertinggi yang terekam sistem dalam satu sesi.",
         },
         {
             selector: "#card-rpm",
@@ -509,7 +624,7 @@ export default function Dashboard() {
     // ⏱️ Auto start saat komponen pertama kali render
     useEffect(() => {
         // Hubungkan ke WebSocket dari Node-RED
-        socketRef.current = new WebSocket("ws://localhost:1880/ws/esp32");
+        socketRef.current = new WebSocket("ws://localhost:8765");
 
         // Saat koneksi terbuka
         socketRef.current.onopen = () => {
@@ -520,7 +635,7 @@ export default function Dashboard() {
         socketRef.current.onmessage = (event) => {
             try {
                 const message = JSON.parse(event.data);
-                setData(message);
+                setDataBattery(message);
                 console.log(message);
             } catch (e) {
                 console.error("Invalid JSON:", event.data);
@@ -558,16 +673,40 @@ export default function Dashboard() {
                         accentColor="#4F46E5"
                     />
                     <div className="mx-auto max-w-8xl sm:px-6 lg:px-8">
-                        <div className="p-2 text-white text-3xl ">
-                            Dashboard
-                        </div>
                         <div className="text-right mt-1 button-container">
+                            <div className="p-3 text-white text-md text-right its">
+                                Welcome, {user.name}! 👋
+                            </div>
                             <div className="p-3 text-white text-md text-right its">
                                 {new Date().toLocaleDateString("id-ID", {
                                     year: "numeric",
                                     month: "long",
                                     day: "numeric",
                                 })}
+                            </div>
+                            <div
+                                className="p-3 text-white text-md text-right its flex"
+                                onClick={() => setOpenModal(true)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <svg
+                                    class="w-6 h-6 text-white dark:text-white mr-1"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m10.051 8.102-3.778.322-1.994 1.994a.94.94 0 0 0 .533 1.6l2.698.316m8.39 1.617-.322 3.78-1.994 1.994a.94.94 0 0 1-1.595-.533l-.4-2.652m8.166-11.174a1.366 1.366 0 0 0-1.12-1.12c-1.616-.279-4.906-.623-6.38.853-1.671 1.672-5.211 8.015-6.31 10.023a.932.932 0 0 0 .162 1.111l.828.835.833.832a.932.932 0 0 0 1.111.163c2.008-1.102 8.35-4.642 10.021-6.312 1.475-1.478 1.133-4.77.855-6.385Zm-2.961 3.722a1.88 1.88 0 1 1-3.76 0 1.88 1.88 0 0 1 3.76 0Z"
+                                    />
+                                </svg>{" "}
+                                Highlight Score
                             </div>
                             <Tooltip content="Fullscreen" placement="bottom">
                                 <div
@@ -601,24 +740,140 @@ export default function Dashboard() {
                                 imgAlt="Meaningful alt text for an image that is not purely decorative"
                                 imgSrc="/img/illbike.png"
                             >
-                                <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Hello, <br />
-                                    {user.name}!
-                                </h2>
-                                <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Static Bike for Energy Generation
-                                </h5>
-                                <p className="font-normal text-gray-700 dark:text-gray-400">
-                                    Pedal power with a purpose — this stationary
-                                    bike isn't just for fitness, it converts
-                                    your motion into usable electricity. Monitor
-                                    your energy output and turn exercise into
-                                    clean, renewable power.
-                                </p>
+                                <span id="top-leaders">
+                                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                        <span className="flex gap-2">
+                                            <Trophy
+                                                className="w-7 h-7 text-gold"
+                                                style={{ alignSelf: "center" }}
+                                            />
+                                            Top Leaderboard
+                                        </span>
+                                    </h2>
+
+                                    {/* Top 3 Scores */}
+                                    <div className="space-y-3 mt-2">
+                                        {!ranking ? (
+                                            <></>
+                                        ) : (
+                                            ranking
+                                                .slice(0, 3)
+                                                .map((score, index) => (
+                                                    <div
+                                                        key={index + 1}
+                                                        className={`flex items-center gap-3 p-3 rounded-xl border ${getRankBg(
+                                                            index + 1
+                                                        )} transition-all duration-300 hover:scale-[1.02] animate-slide-up`}
+                                                        style={{
+                                                            animationDelay: `${
+                                                                index * 100
+                                                            }ms`,
+                                                        }}
+                                                    >
+                                                        {/* Rank Icon */}
+                                                        <div className="flex-shrink-0">
+                                                            {getRankIcon(
+                                                                index + 1
+                                                            )}
+                                                        </div>
+
+                                                        {/* Rank Number */}
+                                                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                                            <span className="text-sm font-bold text-secondary-foreground">
+                                                                {index + 1}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Name */}
+                                                        <div className="flex-1">
+                                                            <span
+                                                                className="font-bold block truncate min-w-0 max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px] 2xl:max-w-[320px]"
+                                                                style={{
+                                                                    color: "#2d4053",
+                                                                    overflow:
+                                                                        "hidden",
+                                                                    textOverflow:
+                                                                        "ellipsis",
+                                                                    whiteSpace:
+                                                                        "break-space",
+                                                                }}
+                                                            >
+                                                                {(() => {
+                                                                    const words =
+                                                                        score.name.split(
+                                                                            " "
+                                                                        );
+                                                                    return words.length >
+                                                                        2
+                                                                        ? words
+                                                                              .slice(
+                                                                                  0,
+                                                                                  2
+                                                                              )
+                                                                              .join(
+                                                                                  " "
+                                                                              ) +
+                                                                              "..."
+                                                                        : score.name;
+                                                                })()}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Score */}
+                                                        <div className="text-right">
+                                                            <p className="font-display font-bold text-primary">
+                                                                {score.total_energy.toLocaleString()}{" "}
+                                                                <span className="text-xs text-muted-foreground ml-1">
+                                                                    Wh
+                                                                </span>
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground ml-1">
+                                                                {formatDuration(
+                                                                    score.duration
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                        )}
+                                    </div>
+                                </span>
+
+                                <BatteryGauge
+                                    id="indikator-battery"
+                                    className="absolute top-3 left-6 z-10 w-16 h-16 sm:w-16 sm:h-16"
+                                    customization={{
+                                        batteryBody: {
+                                            fill: "silver",
+                                            strokeColor: "#453F5F",
+                                            strokeWidth: 2,
+                                        },
+                                        batteryCap: {
+                                            capToBodyRatio: 0.4,
+                                            cornerRadius: 3,
+                                            fill: "silver",
+                                            strokeColor: "#453E5F",
+                                            strokeWidth: 0,
+                                        },
+                                        batteryMeter: {
+                                            noOfCells: 4,
+                                        },
+                                        readingText: {
+                                            darkContrastColor: "white",
+                                            fontFamily: "Arial",
+                                            fontSize: 18,
+                                            lightContrastColor: "black",
+                                            lowBatteryColor: "red",
+                                        },
+                                    }}
+                                    value={getBatteryPercentage(
+                                        dataBattery?.data?.voltage
+                                    )}
+                                />
                                 {play ? (
                                     <HiPause
                                         id="play-button"
-                                        className="absolute top-4 right-4 z-10 w-12 h-12 sm:w-12 sm:h-12"
+                                        className="absolute top-4 right-4 z-10 w-16 h-16 sm:w-16 sm:h-16"
                                         style={{
                                             color: "rgba(24, 22, 70, 0.8)",
                                             cursor: "pointer",
@@ -677,7 +932,7 @@ export default function Dashboard() {
                                 ) : (
                                     <HiPlay
                                         id="play-button"
-                                        className="absolute top-4 right-4 z-10 w-12 h-12 sm:w-12 sm:h-12"
+                                        className="absolute top-4 right-4 z-10 w-16 h-16 sm:w-16 sm:h-16"
                                         style={{
                                             color: "rgba(24, 22, 70, 0.8)",
                                             cursor: "pointer",
@@ -732,7 +987,9 @@ export default function Dashboard() {
                                                             0
                                                         ) + message[5];
                                                     setEnergy(
-                                                        (x) => x + message[5]
+                                                        (x) =>
+                                                            (x + message[5]) /
+                                                            3600
                                                     );
                                                     setDaya((prev) => [
                                                         ...prev,
@@ -744,6 +1001,15 @@ export default function Dashboard() {
                                                         value: message[1],
                                                         ts: Date.now(),
                                                     });
+                                                    if (message[1] >= 42) {
+                                                        Swal.fire({
+                                                            timer: 2000,
+                                                            title: "Kecepatan tinggi!",
+                                                            text: "Kurangi kecepatan Anda!",
+                                                            icon: "warning",
+                                                            showConfirmButton: false,
+                                                        });
+                                                    }
                                                 } catch (e) {
                                                     console.error(
                                                         "Invalid JSON:",
@@ -862,6 +1128,209 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
+            <Modal
+                show={openModal}
+                size="lg"
+                popup
+                position="top-center"
+                onClose={() => setOpenModal(false)}
+                root={document.fullscreenElement || document.body}
+            >
+                <ModalHeader />
+                <ModalBody>
+                    <div className="space-y-6">
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                            Highlight Score
+                        </h3>
+                        <div
+                            className="overflow-x-auto"
+                            style={{
+                                height: "320px",
+                            }}
+                        >
+                            <Table striped>
+                                <TableHead
+                                    style={{ backgroundColor: "#1B2453" }}
+                                >
+                                    <TableHeadCell
+                                        style={{
+                                            backgroundColor: "#1B2453",
+                                            color: "white",
+                                        }}
+                                    >
+                                        No
+                                    </TableHeadCell>
+                                    <TableHeadCell
+                                        style={{
+                                            backgroundColor: "#1B2453",
+                                            color: "white",
+                                        }}
+                                    >
+                                        Name
+                                    </TableHeadCell>
+                                    <TableHeadCell
+                                        style={{
+                                            backgroundColor: "#1B2453",
+                                            color: "white",
+                                        }}
+                                    >
+                                        Energy Produced
+                                    </TableHeadCell>
+                                    <TableHeadCell
+                                        style={{
+                                            backgroundColor: "#1B2453",
+                                            color: "white",
+                                        }}
+                                    >
+                                        Time
+                                    </TableHeadCell>
+                                </TableHead>
+                                <TableBody
+                                    className="divide-y"
+                                    style={{
+                                        maxHeight: "400px",
+                                    }}
+                                >
+                                    {ranking ? (
+                                        ranking.map((rank, index) => (
+                                            <>
+                                                <TableRow
+                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                    style={{
+                                                        backgroundColor:
+                                                            index + 1 == 1
+                                                                ? "#D4AF37"
+                                                                : index + 1 == 2
+                                                                ? "#C0C0C0"
+                                                                : index + 1 == 3
+                                                                ? "#CD7F32"
+                                                                : "transparent",
+                                                    }}
+                                                >
+                                                    <TableCell>
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                        {rank.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.total_energy}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.duration}
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow
+                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                    style={{
+                                                        backgroundColor:
+                                                            index + 1 == 1
+                                                                ? "#D4AF37"
+                                                                : index + 1 == 2
+                                                                ? "#C0C0C0"
+                                                                : index + 1 == 3
+                                                                ? "#CD7F32"
+                                                                : "transparent",
+                                                    }}
+                                                >
+                                                    <TableCell>
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                        {rank.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.total_energy}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.duration}
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow
+                                                    className="dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                    style={{
+                                                        backgroundColor:
+                                                            index + 1 == 1
+                                                                ? "#D4AF37"
+                                                                : index + 1 == 2
+                                                                ? "#C0C0C0"
+                                                                : index + 1 == 3
+                                                                ? "#CD7F32"
+                                                                : "transparent",
+                                                    }}
+                                                >
+                                                    <TableCell>
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                        {rank.name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.total_energy}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {rank.duration}
+                                                    </TableCell>
+                                                </TableRow>
+                                            </>
+                                        ))
+                                    ) : (
+                                        <></>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+
+                        <div
+                            className={`flex items-center gap-3 p-3 rounded-xl border  border-border transition-all duration-300 hover:scale-[1.02] animate-slide-up`}
+                        >
+                            {/* Rank Number */}
+                            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                <span className="text-sm font-bold text-secondary-foreground">
+                                    100
+                                </span>
+                            </div>
+
+                            {/* Name */}
+                            <div className="flex-1">
+                                <span
+                                    className="font-bold block truncate min-w-0 max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px] 2xl:max-w-[320px]"
+                                    style={{
+                                        color: "#2d4053",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "break-space",
+                                    }}
+                                >
+                                    kesel coding
+                                    {/* {(() => {
+                                        const words = score.name.split(" ");
+                                        return words.length > 2
+                                            ? words.slice(0, 2).join(" ") +
+                                                  "..."
+                                            : score.name;
+                                    })()} */}
+                                </span>
+                            </div>
+
+                            {/* Score */}
+                            <div className="text-right">
+                                <p className="font-display font-bold text-primary">
+                                    {/* {score.total_energy.toLocaleString()}{" "} */}
+                                    1000
+                                    <span className="text-xs text-muted-foreground ml-1">
+                                        Wh
+                                    </span>
+                                </p>
+                                <p className="text-xs text-muted-foreground ml-1">
+                                    {/* {formatDuration(score.duration)} */}0 h
+                                    0 m 1 s
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </ModalBody>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
