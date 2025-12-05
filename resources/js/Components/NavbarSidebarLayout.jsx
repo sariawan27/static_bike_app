@@ -132,7 +132,6 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                             {
                                 name: "Trending",
                                 link: "/trending",
-                                badge: "3",
                                 icon: (
                                     <svg
                                         className="w-6 h-6  hover:text-black"
