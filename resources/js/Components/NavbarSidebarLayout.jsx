@@ -18,6 +18,7 @@ import { useState, useRef, useEffect } from "react";
 import InputLabel from "./InputLabel";
 import InputError from "./InputError";
 import { useForm } from "@inertiajs/react";
+import { CircleUserIcon } from "lucide-react";
 
 const NavbarSidebarLayout = ({ header, children, user }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -292,11 +293,7 @@ const NavbarSidebarLayout = ({ header, children, user }) => {
                                         href="#"
                                         className="flex items-center p-2 hover:text-black  hover:bg-gray-100 dark:hover:bg-gray-700 group"
                                     >
-                                        <img
-                                            src="https://catalyst-demo.tailwindui.com/users/erica.jpg"
-                                            className="h-6 me-3 sm:h-7"
-                                            alt="Flowbite Logo"
-                                        />
+                                        <CircleUserIcon className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                                         <span className="flex-1 ms-3 whitespace-nowrap">
                                             {user?.name}
                                         </span>
