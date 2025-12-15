@@ -460,6 +460,7 @@ export default function Dashboard({ ranking }) {
         if (v >= 14) return 100; // charging
         if (v >= 13.75) return 50;
         if (v >= 13.25) return 25;
+        if (v >= 1) return 25;
 
         return 0; // default safety
     };

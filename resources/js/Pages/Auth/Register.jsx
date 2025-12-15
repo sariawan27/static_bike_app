@@ -18,9 +18,12 @@ export default function Register() {
         e.preventDefault();
 
         post(route("register"), {
-            onFinish: () => reset("password", "password_confirmation"),
+            headers: {
+                Accept: "application/json",
+            },
         });
     };
+    console.log(errors, "errrorss");
 
     return (
         <GuestLayout>

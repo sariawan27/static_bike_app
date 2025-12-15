@@ -14,6 +14,15 @@ class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
+    public function handle(Request $request, \Closure $next)
+    {
+        // 🔑 INI KUNCI UTAMA
+        if ($request->header('X-Inertia')) {
+            $request->headers->set('Accept', 'application/json');
+        }
+
+        return parent::handle($request, $next);
+    }
     /**
      * Determine the current asset version.
      */
