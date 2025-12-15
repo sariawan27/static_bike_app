@@ -17,10 +17,10 @@ export default function Login({ status, canResetPassword }) {
         e.preventDefault();
 
         post(route("login"), {
-            onFinish: () => reset("password"),
+            // onFinish: () => reset("password"),
         });
     };
-    console.log(errors);
+    console.log(errors, "errrorss");
 
     return (
         <GuestLayout>
@@ -74,14 +74,14 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route("register")}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Tidak punya akun? <b>Daftar</b>
-                        </Link>
-                    )}
+                    {/* {canResetPassword && ( */}
+                    <Link
+                        href={route("register")}
+                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        Tidak punya akun? <b>Daftar</b>
+                    </Link>
+                    {/* )} */}
 
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Log in

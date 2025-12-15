@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,9 +29,30 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
-        $request->authenticate();
+        // dd(request()->header('X-Inertia'));
+
+        // $request->authenticate();
+        $user = \App\Models\User::where('username', $request->username)->first();
+
+        if (! $user) {
+            return Inertia::render('Auth/Login', [
+                'errors' => [
+                    'username' => 'Username tidak terdaftar.',
+                ],
+            ])->toResponse($request)->setStatusCode(422);
+        }
+
+        if (! \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return Inertia::render('Auth/Login', [
+                'errors' => [
+                    'password' => 'Password salah.',
+                ],
+            ])->toResponse($request)->setStatusCode(422);
+        }
+
+        Auth::attempt($request->only('username', 'password'));
 
         $request->session()->regenerate();
 
