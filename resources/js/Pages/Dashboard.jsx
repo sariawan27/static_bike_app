@@ -865,9 +865,10 @@ export default function Dashboard({ ranking }) {
                                         readingText: {
                                             darkContrastColor: "white",
                                             fontFamily: "Arial",
-                                            fontSize: 18,
+                                            fontSize: 0,
                                             lightContrastColor: "black",
                                             lowBatteryColor: "red",
+                                            showPercentage: false,
                                         },
                                     }}
                                     value={getBatteryPercentage(
