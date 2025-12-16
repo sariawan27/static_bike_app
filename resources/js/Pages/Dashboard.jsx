@@ -77,6 +77,7 @@ export default function Dashboard({ ranking }) {
     const [daya, setDaya] = useState([]);
     const [timestamp, setTimestamp] = useState([]);
     const [myScore, setMyScore] = useState(null);
+    const [batteryStored, setBatteryStored] = useState(0);
 
     const user = usePage().props.auth.user;
 
@@ -885,6 +886,9 @@ export default function Dashboard({ ranking }) {
                                             cursor: "pointer",
                                         }}
                                         onClick={() => {
+                                            setBatteryStored(
+                                                (energy / 2400) * 100
+                                            );
                                             setTimestamp([]);
                                             setVoltage([]);
                                             setCurrent([]);
@@ -1139,29 +1143,47 @@ export default function Dashboard({ ranking }) {
                 size="lg"
                 popup
                 position="top-center"
-                onClose={() => setOpenModalDone(false)}
+                onClose={() => {
+                    setOpenModalDone(false);
+
+                    window.location.reload();
+                    toggleFullscreen();
+                }}
                 root={document.fullscreenElement || document.body}
             >
                 <ModalHeader />
                 <ModalBody style={{ textAlign: "center" }}>
-                    <h2>{(energy / 2400) * 100} %</h2>
-                    <p>Your energy has been successfully stored!</p>
-                    <p>(Tanpa menghitung beban auxilarry)</p>
-                    <button
-                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-                        onClick={() => setOpenModalDone(false)}
-                    >
-                        Close
-                    </button>
-                    <button
-                        className="mt-4 px-4 py-2 bg-green-500 text-white rounded ml-2"
-                        onClick={() => {
-                            setOpenModalDone(false);
-                            window.location.href = "/trending";
-                        }}
-                    >
-                        Go to Trending
-                    </button>
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-medium text-gray-900 dark:text-white">
+                            {batteryStored} %
+                        </h2>
+                        <p className="text-xl font-medium text-gray-900 dark:text-white">
+                            Your energy has been successfully stored!
+                        </p>
+                        <p className="text-xl font-medium text-gray-900 dark:text-white">
+                            (Tanpa menghitung beban auxilarry)
+                        </p>
+                        <button
+                            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                            onClick={() => {
+                                setOpenModalDone(false);
+
+                                window.location.reload();
+                                toggleFullscreen();
+                            }}
+                        >
+                            Close
+                        </button>
+                        <button
+                            className="mt-4 px-4 py-2 bg-green-500 text-white rounded ml-2"
+                            onClick={() => {
+                                setOpenModalDone(false);
+                                window.location.href = "/trending";
+                            }}
+                        >
+                            Go to Trending
+                        </button>
+                    </div>
                 </ModalBody>
             </Modal>
             <Modal
@@ -1169,7 +1191,9 @@ export default function Dashboard({ ranking }) {
                 size="lg"
                 popup
                 position="top-center"
-                onClose={() => setOpenModal(false)}
+                onClose={() => {
+                    setOpenModal(false);
+                }}
                 root={document.fullscreenElement || document.body}
             >
                 <ModalHeader />
