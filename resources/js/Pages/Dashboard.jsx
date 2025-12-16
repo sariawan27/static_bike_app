@@ -933,7 +933,7 @@ export default function Dashboard({ ranking }) {
                                                 );
                                             };
                                             setPlay(false);
-                                            openModalDone(true);
+                                            setOpenModalDone(true);
                                         }}
                                     />
                                 ) : (
