@@ -214,9 +214,9 @@ export default function Dashboard({ ranking }) {
                             fontSize: 30, // angka utama besar
                             fontWeight: "bold",
                             color: data[1]
-                                ? +data[1] >= +"42"
+                                ? +data[1] >= +"90"
                                     ? "#fd666d"
-                                    : +data[1] >= +"26"
+                                    : +data[1] >= +"73"
                                     ? "#f8c630"
                                     : "#fff"
                                 : "#fff",
@@ -224,9 +224,9 @@ export default function Dashboard({ ranking }) {
                         sub: {
                             fontSize: 20, // speedValue lebih kecil
                             color: data[1]
-                                ? +data[1] >= +"42"
+                                ? +data[1] >= +"90"
                                     ? "#fd666d"
-                                    : +data[1] >= +"26"
+                                    : +data[1] >= +"73"
                                     ? "#f8c630"
                                     : "#fff"
                                 : "#fff",
