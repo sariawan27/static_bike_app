@@ -1145,7 +1145,7 @@ export default function Dashboard({ ranking }) {
                 <ModalHeader />
                 <ModalBody style={{ textAlign: "center" }}>
                     <h2>{(energy / 2400) * 100} %</h2>
-                    <p>Your energy has been successfully saved!</p>
+                    <p>Your energy has been successfully stored!</p>
                     <p>(Tanpa menghitung beban auxilarry)</p>
                     <button
                         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
