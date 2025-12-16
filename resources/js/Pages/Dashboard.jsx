@@ -65,6 +65,7 @@ export default function Dashboard({ ranking }) {
     console.log(ranking, "dashboard props ranking");
 
     const [openModal, setOpenModal] = useState(false);
+    const [openModalDone, setOpenModalDone] = useState(false);
     const [rpm, setRpm] = useState({ value: null, ts: Date.now() });
     const [startDate, setStartDate] = useState(null);
     const startTimeRef = useRef(null);
@@ -932,6 +933,7 @@ export default function Dashboard({ ranking }) {
                                                 );
                                             };
                                             setPlay(false);
+                                            setOpenModalDone(true);
                                         }}
                                     />
                                 ) : (
@@ -992,9 +994,7 @@ export default function Dashboard({ ranking }) {
                                                             0
                                                         ) + message[5];
                                                     setEnergy(
-                                                        (x) =>
-                                                            (x + message[5]) /
-                                                            3600
+                                                        (x) => x + message[5]
                                                     );
                                                     setDaya((prev) => [
                                                         ...prev,
@@ -1133,6 +1133,36 @@ export default function Dashboard({ ranking }) {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                show={openModalDone}
+                size="lg"
+                popup
+                position="top-center"
+                onClose={() => setOpenModalDone(false)}
+                root={document.fullscreenElement || document.body}
+            >
+                <ModalHeader />
+                <ModalBody style={{ textAlign: "center" }}>
+                    <h2>{(energy / 2400) * 100} %</h2>
+                    <p>Your energy has been successfully sent!</p>
+                    <button
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                        onClick={() => setOpenModalDone(false)}
+                    >
+                        Close
+                    </button>
+                    <button
+                        className="mt-4 px-4 py-2 bg-green-500 text-white rounded ml-2"
+                        onClick={() => {
+                            setOpenModalDone(false);
+                            window.location.href = "/trending";
+                        }}
+                    >
+                        Go to Trending
+                    </button>
+                </ModalBody>
+            </Modal>
             <Modal
                 show={openModal}
                 size="lg"
