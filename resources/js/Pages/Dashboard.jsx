@@ -863,6 +863,8 @@ export default function Dashboard({ ranking }) {
                                         },
                                         batteryMeter: {
                                             noOfCells: 4,
+                                            lowBatteryValue: 10,
+                                            lowBatteryFill: "red",
                                         },
                                         readingText: {
                                             darkContrastColor: "white",
