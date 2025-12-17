@@ -367,7 +367,7 @@ export default function Trending({ trxData, hrcData, filter }) {
                             </span>
                             <span className="text-gray-500">
                                 (<b>Energy Produced:</b>{" "}
-                                {totalEnergy.toFixed(4)} J)
+                                {totalEnergy.toFixed(4)} Wh)
                             </span>
                             {!downloadingEnergy && (
                                 <button

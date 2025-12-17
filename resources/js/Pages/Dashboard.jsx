@@ -462,7 +462,7 @@ export default function Dashboard({ ranking }) {
         if (v >= 14) return 100; // charging
         if (v >= 13.75) return 50;
         if (v >= 13.25) return 25;
-        if (v >= 1) return 25;
+        if (v >= 1) return 10;
 
         return 0; // default safety
     };
@@ -1276,7 +1276,7 @@ export default function Dashboard({ ranking }) {
                                                         {rank.name}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {rank.total_energy}
+                                                        {rank.total_energy} Wh
                                                     </TableCell>
                                                     <TableCell>
                                                         {formatDuration(
