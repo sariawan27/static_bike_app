@@ -276,7 +276,32 @@ export default function Dashboard({ ranking }) {
                 },
                 data: [
                     {
-                        value: data[4] ? data[4] : 0,
+                        // value: data[4] ? data[4] : 0,
+                        value: 15,
+                        // name: "Good",
+                        // title: {
+                        //   offsetCenter: ["-30%", "80%"],
+                        // },
+                        // pointer: {
+                        //   width: 3,
+                        //   length: "90%",
+                        //   // icon: "path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z",
+                        //   itemStyle: {
+                        //     color: "#aaa",
+                        //   },
+                        // },
+                        detail: {
+                            // color: "#000",
+                            backgroundColor: "transparent",
+                            fontSize: 30,
+                            offsetCenter: ["0%", "50%"],
+                            formatter: function (value) {
+                                return `${value} W`;
+                            },
+                        },
+                    },
+                    {
+                        value: 15.5,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -292,9 +317,18 @@ export default function Dashboard({ ranking }) {
                         detail: {
                             // color: "#aaa",
                             // color: "#000",
+                            color: "#39ff14",
                             backgroundColor: "transparent",
-                            fontSize: 30,
-                            offsetCenter: ["0%", "50%"],
+                            fontSize: 24,
+                            offsetCenter: ["0%", "89%"],
+                            formatter: function (value) {
+                                return `+ ${value - 15} W`;
+                            },
+                        },
+                        progress: {
+                            itemStyle: {
+                                color: "#39ff14",
+                            },
                         },
                     },
                 ],
@@ -827,10 +861,19 @@ export default function Dashboard({ ranking }) {
 
                                                         {/* Score */}
                                                         <div className="text-right">
-                                                            <p className="font-display font-bold text-primary">
+                                                            <p className="font-display font-bold text-primary text-xs">
                                                                 {score.total_energy.toLocaleString()}{" "}
                                                                 <span className="text-xs text-muted-foreground ml-1">
-                                                                    Wh
+                                                                    Wh /
+                                                                </span>{" "}
+                                                                {(
+                                                                    score.total_energy *
+                                                                    3.7
+                                                                )
+                                                                    .toFixed(2)
+                                                                    .toLocaleString()}{" "}
+                                                                <span className="text-xs text-muted-foreground ml-1">
+                                                                    kcal
                                                                 </span>
                                                             </p>
                                                             <p className="text-xs text-muted-foreground ml-1">
@@ -869,10 +912,10 @@ export default function Dashboard({ ranking }) {
                                         readingText: {
                                             darkContrastColor: "white",
                                             fontFamily: "Arial",
-                                            fontSize: 0,
+                                            fontSize: 18,
                                             lightContrastColor: "black",
                                             lowBatteryColor: "red",
-                                            showPercentage: false,
+                                            // showPercentage: false,
                                         },
                                     }}
                                     value={getBatteryPercentage(
@@ -1236,7 +1279,7 @@ export default function Dashboard({ ranking }) {
                                             color: "white",
                                         }}
                                     >
-                                        Energy Produced
+                                        Energy Produced / Kalori
                                     </TableHeadCell>
                                     <TableHeadCell
                                         style={{
@@ -1276,7 +1319,12 @@ export default function Dashboard({ ranking }) {
                                                         {rank.name}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {rank.total_energy} Wh
+                                                        {rank.total_energy} Wh /{" "}
+                                                        {(
+                                                            rank.total_energy *
+                                                            3.7
+                                                        ).toFixed(4)}{" "}
+                                                        kcal
                                                     </TableCell>
                                                     <TableCell>
                                                         {formatDuration(
@@ -1335,13 +1383,21 @@ export default function Dashboard({ ranking }) {
 
                             {/* Score */}
                             <div className="text-right">
-                                <p className="font-display font-bold text-primary">
+                                <p className="font-display font-bold text-primary text-xs">
                                     {/* {score.total_energy.toLocaleString()}{" "} */}
                                     {myScore != null
                                         ? myScore.total_energy.toLocaleString()
                                         : 0}
                                     <span className="text-xs text-muted-foreground ml-1">
-                                        Wh
+                                        Wh /
+                                    </span>{" "}
+                                    {myScore != null
+                                        ? (myScore.total_energy * 3.7)
+                                              .toFixed(2)
+                                              .toLocaleString()
+                                        : 0}
+                                    <span className="text-xs text-muted-foreground ml-1">
+                                        kcal
                                     </span>
                                 </p>
                                 <p className="text-xs text-muted-foreground ml-1">
