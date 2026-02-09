@@ -71,6 +71,7 @@ export default function Dashboard({ ranking }) {
     const startTimeRef = useRef(null);
     const [data, setData] = useState([]);
     const [dataBattery, setDataBattery] = useState([]);
+    const [dataSoc, setDataSoc] = useState([]);
     const [voltage, setVoltage] = useState([]);
     const [current, setCurrent] = useState([]);
     const [energy, setEnergy] = useState(0);
@@ -676,6 +677,38 @@ export default function Dashboard({ ranking }) {
             try {
                 const message = JSON.parse(event.data);
                 setDataBattery(message);
+                console.log(message);
+            } catch (e) {
+                console.error("Invalid JSON:", event.data);
+            }
+        };
+
+        // Saat koneksi ditutup
+        socketRef.current.onclose = () => {
+            console.log("WebSocket disconnected");
+        };
+
+        const timer = setTimeout(() => setRun(true), 500); // Delay kecil agar DOM siap
+        return () => {
+            socketRef.current.close();
+            clearTimeout(timer);
+        };
+    }, []);
+    
+    useEffect(() => {
+        // Hubungkan ke WebSocket dari Node-RED
+        socketRef.current = new WebSocket("ws://localhost:1880/trigger-bat-cap");
+
+        // Saat koneksi terbuka
+        socketRef.current.onopen = () => {
+            console.log("WebSocket connected to Node-RED for battery capacity");
+        };
+
+        // Saat menerima pesan
+        socketRef.current.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                setDataSoc(message);
                 console.log(message);
             } catch (e) {
                 console.error("Invalid JSON:", event.data);

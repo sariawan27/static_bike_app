@@ -175,8 +175,8 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                                         <Spinner size="lg" />
                                                     </TableCell>
                                                 </TableRow>
-                                            ) : trxData.data.length > 0 ? (
-                                                trxData.data.map(
+                                            ) : trxData.data?.length > 0 ? (
+                                                trxData.data?.map(
                                                     (item, index) => (
                                                         <TableRow
                                                             key={item.id}
@@ -232,7 +232,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
 
                                     {/* Pagination */}
                                     <div className="flex justify-center items-center gap-2 mt-4">
-                                        {trxData.links.map((link, i) => (
+                                        {trxData.links?.map((link, i) => (
                                             <button
                                                 key={i}
                                                 disabled={!link.url || loading}
@@ -399,7 +399,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                         }
                                     >
                                         {/* <option value="">-- Semua HRC --</option> */}
-                                        {hrcData.map((hrc) => (
+                                        {hrcData?.map((hrc) => (
                                             <option key={hrc.id} value={hrc.id}>
                                                 {moment(hrc.start)
                                                     .tz("Asia/Jakarta")

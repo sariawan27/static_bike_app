@@ -15,6 +15,14 @@ echo Menjalankan WebSocket Python (Modbus)...
 powershell -WindowStyle Hidden -Command ^
 "Start-Process python 'ws_realtime.py --port COM5 --unit 1 --ws-port 8765' -WorkingDirectory 'C:\xampp\htdocs\py-modbus-data' -WindowStyle Hidden"
 
+echo Menjalankan WebSocket Python pzem 17 baru (Modbus)...
+powershell -WindowStyle Hidden -Command ^
+"Start-Process python 'ws_realtime.py --port COM12 --unit 1 --ws-port 8700' -WorkingDirectory 'C:\xampp\htdocs\py-modbus-data' -WindowStyle Hidden"
+
+echo Menjalankan WebSocket Python pzem 16 baru (Modbus)...
+powershell -WindowStyle Hidden -Command ^
+"Start-Process python 'ws_realtime.py --port COM11 --unit 1 --ws-port 8777' -WorkingDirectory 'C:\xampp\htdocs\py-modbus-data-16' -WindowStyle Hidden"
+
 echo Menunggu server siap...
 powershell -WindowStyle Hidden -Command "Start-Sleep -Seconds 60"
 
