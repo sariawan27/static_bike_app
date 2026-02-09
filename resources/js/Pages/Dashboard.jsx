@@ -494,9 +494,9 @@ export default function Dashboard({ ranking }) {
         ],
     };
     const getBatteryPercentage = (v) => {
-        if (v >= 14) return 100; // charging
-        if (v >= 13.75) return 50;
-        if (v >= 13.25) return 25;
+        if (v >= 13.8) return 100; // charging
+        if (v >= 13.35 && v < 13.8) return 50;
+        if (v >= 13.25 && v < 13.35) return 25;
         if (v >= 1) return 10;
 
         return 0; // default safety
