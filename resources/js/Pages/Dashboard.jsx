@@ -304,7 +304,7 @@ export default function Dashboard({ ranking }) {
                         },
                     },
                     {
-                        value: energy ? energy.toFixed(0) : 0,
+                        value: energy ? energy.toFixed(4) : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
