@@ -60,7 +60,7 @@ const getRankBg = (rank) => {
 export default function Dashboard({ ranking }) {
     console.log(
         window.location.href.split("/").filter(Boolean)[2],
-        "Dashboard"
+        "Dashboard",
     );
     console.log(ranking, "dashboard props ranking");
 
@@ -220,8 +220,8 @@ export default function Dashboard({ ranking }) {
                                 ? +data[1] >= +"90"
                                     ? "#fd666d"
                                     : +data[1] >= +"73"
-                                    ? "#f8c630"
-                                    : "#fff"
+                                      ? "#f8c630"
+                                      : "#fff"
                                 : "#fff",
                         },
                         sub: {
@@ -230,8 +230,8 @@ export default function Dashboard({ ranking }) {
                                 ? +data[1] >= +"90"
                                     ? "#fd666d"
                                     : +data[1] >= +"73"
-                                    ? "#f8c630"
-                                    : "#fff"
+                                      ? "#f8c630"
+                                      : "#fff"
                                 : "#fff",
                             padding: [4, 0, 0, 0],
                         },
@@ -245,6 +245,8 @@ export default function Dashboard({ ranking }) {
         series: [
             {
                 type: "gauge",
+                min: 0,
+                max: 2400, // ⬅️ INI YANG PENTING
                 startAngle: 180,
                 radius: "65%",
                 endAngle: 0,
@@ -278,7 +280,7 @@ export default function Dashboard({ ranking }) {
                 data: [
                     {
                         // value: data[4] ? data[4] : 0,
-                        value: 15,
+                        value: dataSoc?.socWh ? dataSoc.socWh : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -297,12 +299,12 @@ export default function Dashboard({ ranking }) {
                             fontSize: 30,
                             offsetCenter: ["0%", "50%"],
                             formatter: function (value) {
-                                return `${value} W`;
+                                return `${value} Wh`;
                             },
                         },
                     },
                     {
-                        value: 15.5,
+                        value: energy ? energy.toFixed(0) : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -320,10 +322,10 @@ export default function Dashboard({ ranking }) {
                             // color: "#000",
                             color: "#39ff14",
                             backgroundColor: "transparent",
-                            fontSize: 24,
+                            fontSize: 23,
                             offsetCenter: ["0%", "89%"],
                             formatter: function (value) {
-                                return `+ ${value - 15} W`;
+                                return `+${value} Wh`;
                             },
                         },
                         progress: {
@@ -494,9 +496,9 @@ export default function Dashboard({ ranking }) {
         ],
     };
     const getBatteryPercentage = (v) => {
-        if (v >= 14) return 100; // charging
-        if (v >= 13.75) return 50;
-        if (v >= 13.25) return 25;
+        if (v >= 13.8) return 100; // charging
+        if (v >= 13.35 && v < 13.8) return 50;
+        if (v >= 13.25 && v < 13.35) return 25;
         if (v >= 1) return 10;
 
         return 0; // default safety
@@ -583,7 +585,7 @@ export default function Dashboard({ ranking }) {
                         } else {
                             // Hubungkan ke WebSocket dari Node-RED
                             socketRef.current = new WebSocket(
-                                "ws://localhost:1880/trigger-run"
+                                "ws://localhost:1880/trigger-run",
                             );
 
                             // Saat koneksi terbuka
@@ -593,7 +595,7 @@ export default function Dashboard({ ranking }) {
                                 socketRef.current.send(
                                     JSON.stringify({
                                         action: "stop",
-                                    })
+                                    }),
                                 );
                             };
 
@@ -626,7 +628,7 @@ export default function Dashboard({ ranking }) {
                     }).then((result) => {
                         // Hubungkan ke WebSocket dari Node-RED
                         socketRef.current = new WebSocket(
-                            "ws://localhost:1880/trigger-run"
+                            "ws://localhost:1880/trigger-run",
                         );
 
                         // Saat koneksi terbuka
@@ -636,7 +638,7 @@ export default function Dashboard({ ranking }) {
                             socketRef.current.send(
                                 JSON.stringify({
                                     action: "stop",
-                                })
+                                }),
                             );
                         };
 
@@ -694,10 +696,12 @@ export default function Dashboard({ ranking }) {
             clearTimeout(timer);
         };
     }, []);
-    
+
     useEffect(() => {
         // Hubungkan ke WebSocket dari Node-RED
-        socketRef.current = new WebSocket("ws://localhost:1880/trigger-bat-cap");
+        socketRef.current = new WebSocket(
+            "ws://localhost:1880/trigger-bat-cap",
+        );
 
         // Saat koneksi terbuka
         socketRef.current.onopen = () => {
@@ -718,12 +722,6 @@ export default function Dashboard({ ranking }) {
         // Saat koneksi ditutup
         socketRef.current.onclose = () => {
             console.log("WebSocket disconnected");
-        };
-
-        const timer = setTimeout(() => setRun(true), 500); // Delay kecil agar DOM siap
-        return () => {
-            socketRef.current.close();
-            clearTimeout(timer);
         };
     }, []);
 
@@ -835,7 +833,7 @@ export default function Dashboard({ ranking }) {
                                                     <div
                                                         key={index + 1}
                                                         className={`flex items-center gap-3 p-3 rounded-xl border ${getRankBg(
-                                                            index + 1
+                                                            index + 1,
                                                         )} transition-all duration-300 hover:scale-[1.02] animate-slide-up`}
                                                         style={{
                                                             animationDelay: `${
@@ -846,7 +844,7 @@ export default function Dashboard({ ranking }) {
                                                         {/* Rank Icon */}
                                                         <div className="flex-shrink-0">
                                                             {getRankIcon(
-                                                                index + 1
+                                                                index + 1,
                                                             )}
                                                         </div>
 
@@ -874,17 +872,17 @@ export default function Dashboard({ ranking }) {
                                                                 {(() => {
                                                                     const words =
                                                                         score.name.split(
-                                                                            " "
+                                                                            " ",
                                                                         );
                                                                     return words.length >
                                                                         2
                                                                         ? words
                                                                               .slice(
                                                                                   0,
-                                                                                  2
+                                                                                  2,
                                                                               )
                                                                               .join(
-                                                                                  " "
+                                                                                  " ",
                                                                               ) +
                                                                               "..."
                                                                         : score.name;
@@ -911,7 +909,7 @@ export default function Dashboard({ ranking }) {
                                                             </p>
                                                             <p className="text-xs text-muted-foreground ml-1">
                                                                 {formatDuration(
-                                                                    score.duration
+                                                                    score.duration,
                                                                 )}
                                                             </p>
                                                         </div>
@@ -951,9 +949,10 @@ export default function Dashboard({ ranking }) {
                                             // showPercentage: false,
                                         },
                                     }}
-                                    value={getBatteryPercentage(
-                                        dataBattery?.data?.voltage
-                                    )}
+                                    value={dataSoc?.soc}
+                                    // value={getBatteryPercentage(
+                                    //     dataBattery?.data?.voltage,
+                                    // )}
                                 />
                                 {play ? (
                                     <HiPause
@@ -965,7 +964,7 @@ export default function Dashboard({ ranking }) {
                                         }}
                                         onClick={() => {
                                             setBatteryStored(
-                                                (energy / 2400) * 100
+                                                (energy / 2400) * 100,
                                             );
                                             setTimestamp([]);
                                             setVoltage([]);
@@ -975,35 +974,35 @@ export default function Dashboard({ ranking }) {
                                             setEnergy(0);
                                             // Hubungkan ke WebSocket dari Node-RED
                                             socketRef.current = new WebSocket(
-                                                "ws://localhost:1880/trigger-run"
+                                                "ws://localhost:1880/trigger-run",
                                             );
 
                                             // Saat koneksi terbuka
                                             socketRef.current.onopen = () => {
                                                 console.log(
-                                                    "WebSocket connected to Node-RED"
+                                                    "WebSocket connected to Node-RED",
                                                 );
                                                 // langsung start
                                                 socketRef.current.send(
                                                     JSON.stringify({
                                                         action: "stop",
-                                                    })
+                                                    }),
                                                 );
                                             };
 
                                             // Saat menerima pesan
                                             socketRef.current.onmessage = (
-                                                event
+                                                event,
                                             ) => {
                                                 try {
                                                     const message = JSON.parse(
-                                                        event.data
+                                                        event.data,
                                                     );
                                                     console.log(message);
                                                 } catch (e) {
                                                     console.error(
                                                         "Invalid JSON:",
-                                                        event.data
+                                                        event.data,
                                                     );
                                                 }
                                             };
@@ -1011,7 +1010,7 @@ export default function Dashboard({ ranking }) {
                                             // Saat koneksi ditutup
                                             socketRef.current.onclose = () => {
                                                 console.log(
-                                                    "WebSocket disconnected"
+                                                    "WebSocket disconnected",
                                                 );
                                             };
                                             setPlay(false);
@@ -1032,29 +1031,29 @@ export default function Dashboard({ ranking }) {
 
                                             // Hubungkan ke WebSocket dari Node-RED
                                             socketRef.current = new WebSocket(
-                                                "ws://localhost:1880/trigger-run"
+                                                "ws://localhost:1880/trigger-run",
                                             );
 
                                             // Saat koneksi terbuka
                                             socketRef.current.onopen = () => {
                                                 console.log(
-                                                    "WebSocket connected to Node-RED"
+                                                    "WebSocket connected to Node-RED",
                                                 );
                                                 // langsung start
                                                 socketRef.current.send(
                                                     JSON.stringify({
                                                         action: "start",
-                                                    })
+                                                    }),
                                                 );
                                             };
 
                                             // Saat menerima pesan
                                             socketRef.current.onmessage = (
-                                                event
+                                                event,
                                             ) => {
                                                 try {
                                                     const message = JSON.parse(
-                                                        event.data
+                                                        event.data,
                                                     );
                                                     setTimestamp((prev) => [
                                                         ...prev,
@@ -1073,10 +1072,10 @@ export default function Dashboard({ ranking }) {
                                                     const sum =
                                                         daya.reduce(
                                                             (a, b) => a + b,
-                                                            0
+                                                            0,
                                                         ) + message[5];
                                                     setEnergy(
-                                                        (x) => x + message[5]
+                                                        (x) => x + message[5],
                                                     );
                                                     setDaya((prev) => [
                                                         ...prev,
@@ -1100,7 +1099,7 @@ export default function Dashboard({ ranking }) {
                                                 } catch (e) {
                                                     console.error(
                                                         "Invalid JSON:",
-                                                        event.data
+                                                        event.data,
                                                     );
                                                 }
                                             };
@@ -1108,7 +1107,7 @@ export default function Dashboard({ ranking }) {
                                             // Saat koneksi ditutup
                                             socketRef.current.onclose = () => {
                                                 console.log(
-                                                    "WebSocket disconnected"
+                                                    "WebSocket disconnected",
                                                 );
                                             };
                                         }}
@@ -1152,7 +1151,7 @@ export default function Dashboard({ ranking }) {
                                         }}
                                     >
                                         <span className="xl:text-2xl text-xl">
-                                            Daya
+                                            E Produced (Wh)
                                         </span>
                                         <ReactEcharts
                                             option={optionsPower}
@@ -1339,10 +1338,11 @@ export default function Dashboard({ ranking }) {
                                                             index + 1 == 1
                                                                 ? "#D4AF37"
                                                                 : index + 1 == 2
-                                                                ? "#C0C0C0"
-                                                                : index + 1 == 3
-                                                                ? "#CD7F32"
-                                                                : "transparent",
+                                                                  ? "#C0C0C0"
+                                                                  : index + 1 ==
+                                                                      3
+                                                                    ? "#CD7F32"
+                                                                    : "transparent",
                                                     }}
                                                 >
                                                     <TableCell>
@@ -1361,7 +1361,7 @@ export default function Dashboard({ ranking }) {
                                                     </TableCell>
                                                     <TableCell>
                                                         {formatDuration(
-                                                            rank.duration
+                                                            rank.duration,
                                                         )}
                                                     </TableCell>
                                                 </TableRow>
@@ -1382,7 +1382,8 @@ export default function Dashboard({ ranking }) {
                                 <span className="text-sm font-bold text-secondary-foreground">
                                     {myScore != null
                                         ? ranking?.findIndex(
-                                              (item) => item.user_id === user.id
+                                              (item) =>
+                                                  item.user_id === user.id,
                                           ) + 1
                                         : "-"}
                                 </span>
@@ -1408,8 +1409,8 @@ export default function Dashboard({ ranking }) {
                                             ? words.slice(0, 2).join(" ") +
                                                   "..."
                                             : myScore != null
-                                            ? myScore.name.split(" ")
-                                            : user.name.split(" ");
+                                              ? myScore.name.split(" ")
+                                              : user.name.split(" ");
                                     })()}
                                 </span>
                             </div>
