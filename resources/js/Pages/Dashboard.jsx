@@ -435,7 +435,7 @@ export default function Dashboard({ ranking }) {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} W",
+                    formatter: "{value} Wh",
                 },
             },
         ],
