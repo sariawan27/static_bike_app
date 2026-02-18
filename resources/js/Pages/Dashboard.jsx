@@ -325,7 +325,7 @@ export default function Dashboard({ ranking }) {
                             fontSize: 23,
                             offsetCenter: ["0%", "89%"],
                             formatter: function (value) {
-                                return `+${value} Wh`;
+                                return `${value} Wh`;
                             },
                         },
                         progress: {
