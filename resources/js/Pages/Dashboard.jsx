@@ -435,7 +435,7 @@ export default function Dashboard({ ranking }) {
                     color: "#fff",
                     backgroundColor: "inherit",
                     borderRadius: 3,
-                    formatter: "{value} W",
+                    formatter: "{value} Wh",
                 },
             },
         ],
@@ -963,9 +963,7 @@ export default function Dashboard({ ranking }) {
                                             cursor: "pointer",
                                         }}
                                         onClick={() => {
-                                            setBatteryStored(
-                                                (energy / 2400) * 100,
-                                            );
+                                            setBatteryStored(energy.toFixed(2));
                                             setTimestamp([]);
                                             setVoltage([]);
                                             setCurrent([]);
@@ -1232,7 +1230,7 @@ export default function Dashboard({ ranking }) {
                 <ModalBody style={{ textAlign: "center" }}>
                     <div className="space-y-6">
                         <h2 className="text-xl font-medium text-gray-900 dark:text-white">
-                            {batteryStored} %
+                            {batteryStored} Wh
                         </h2>
                         <p className="text-xl font-medium text-gray-900 dark:text-white">
                             Your energy has been successfully stored!
