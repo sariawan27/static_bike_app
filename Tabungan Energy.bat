@@ -17,7 +17,7 @@ powershell -WindowStyle Hidden -Command ^
 
 echo Menjalankan WebSocket Python pzem 17 baru (Modbus)...
 powershell -WindowStyle Hidden -Command ^
-"Start-Process python 'ws_realtime.py --port COM11 --unit 1 --ws-port 8700' -WorkingDirectory 'C:\xampp\htdocs\py-modbus-data' -WindowStyle Hidden"
+"Start-Process python 'ws_realtime.py --port COM11 --unit 1 --ws-port 8700' -WorkingDirectory 'C:\xampp\htdocs\py-modbus-data-baru' -WindowStyle Hidden"
 
 echo Menjalankan WebSocket Python pzem 16 baru (Modbus)...
 powershell -WindowStyle Hidden -Command ^
