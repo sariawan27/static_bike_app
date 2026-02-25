@@ -899,7 +899,7 @@ export default function Dashboard({ ranking }) {
                                                                 </span>{" "}
                                                                 {(
                                                                     score.total_energy *
-                                                                    3.7
+                                                                    0.8604
                                                                 )
                                                                     .toFixed(2)
                                                                     .toLocaleString()}{" "}
@@ -1231,7 +1231,9 @@ export default function Dashboard({ ranking }) {
                     <div className="space-y-6">
                         <h2 className="text-xl font-medium text-gray-900 dark:text-white">
                             {batteryStored} Wh /{" "}
-                            {(batteryStored * 3.7).toFixed(2).toLocaleString()}{" "}
+                            {(batteryStored * 0.8604)
+                                .toFixed(2)
+                                .toLocaleString()}{" "}
                             kcal
                         </h2>
                         <p className="text-xl font-medium text-gray-900 dark:text-white">
@@ -1355,7 +1357,7 @@ export default function Dashboard({ ranking }) {
                                                         {rank.total_energy} Wh /{" "}
                                                         {(
                                                             rank.total_energy *
-                                                            3.7
+                                                            0.8604
                                                         ).toFixed(4)}{" "}
                                                         kcal
                                                     </TableCell>
@@ -1426,7 +1428,7 @@ export default function Dashboard({ ranking }) {
                                         Wh /
                                     </span>{" "}
                                     {myScore != null
-                                        ? (myScore.total_energy * 3.7)
+                                        ? (myScore.total_energy * 0.8604)
                                               .toFixed(2)
                                               .toLocaleString()
                                         : 0}
