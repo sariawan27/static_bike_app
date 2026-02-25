@@ -1230,7 +1230,7 @@ export default function Dashboard({ ranking }) {
                 <ModalBody style={{ textAlign: "center" }}>
                     <div className="space-y-6">
                         <h2 className="text-xl font-medium text-gray-900 dark:text-white">
-                            {batteryStored} Wh /
+                            {batteryStored} Wh /{" "}
                             {(batteryStored * 3.7).toFixed(2).toLocaleString()}{" "}
                             kcal
                         </h2>
