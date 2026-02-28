@@ -31,7 +31,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
 
     const [selectedDateTime, setSelectedDateTime] = React.useState(new Date());
     const [selectedEndDateTime, setSelectedEndDateTime] = React.useState(
-        new Date()
+        new Date(),
     );
     const [processing, setProcessing] = React.useState(false);
     const [errors, setErrors] = React.useState({});
@@ -47,7 +47,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
         router.get(
             route("reporting.index"), // pastikan route name sesuai
             { hrc_id: selectedHrc }, // 👈 param terkirim sebagai query string
-            { preserveState: true, replace: true }
+            { preserveState: true, replace: true },
         );
     };
 
@@ -61,13 +61,13 @@ export default function Reporting({ trxData, hrcData, filter }) {
                 preserveScroll: true,
                 preserveState: true,
                 onFinish: () => setLoading(false),
-            }
+            },
         );
     };
 
     console.log(
         window.location.href.split("/").filter(Boolean)[2],
-        "Reporting"
+        "Reporting",
     );
     return (
         <AuthenticatedLayout
@@ -194,9 +194,15 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                                                     1}
                                                             </TableCell>
                                                             <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                {
-                                                                    item.created_at
-                                                                }
+                                                                {moment(
+                                                                    item.created_at,
+                                                                )
+                                                                    .tz(
+                                                                        "Asia/Jakarta",
+                                                                    )
+                                                                    .format(
+                                                                        "YYYY-MM-DD HH:mm:ss",
+                                                                    )}
                                                             </TableCell>
                                                             <TableCell className="text-gray-900 dark:text-white">
                                                                 {item.voltage} V
@@ -208,7 +214,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                                                 {item.power} W
                                                             </TableCell>
                                                         </TableRow>
-                                                    )
+                                                    ),
                                                 )
                                             ) : (
                                                 <TableRow
@@ -279,7 +285,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                             window.open(
                                                 "http://localhost:8000/export-record?hrc_id=" +
                                                     selectedHrc,
-                                                "_blank"
+                                                "_blank",
                                             );
 
                                             setOpenModal(false);
@@ -404,13 +410,13 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                                 {moment(hrc.start)
                                                     .tz("Asia/Jakarta")
                                                     .format(
-                                                        "DD-MM-yyyy HH:mm:ss"
+                                                        "DD-MM-yyyy HH:mm:ss",
                                                     )}{" "}
                                                 -{" "}
                                                 {moment(hrc.end)
                                                     .tz("Asia/Jakarta")
                                                     .format(
-                                                        "DD-MM-yyyy HH:mm:ss"
+                                                        "DD-MM-yyyy HH:mm:ss",
                                                     )}
                                             </option>
                                         ))}
