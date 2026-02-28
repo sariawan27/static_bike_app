@@ -304,7 +304,7 @@ export default function Dashboard({ ranking }) {
                         },
                     },
                     {
-                        value: energy ? energy.toFixed(4) : 0,
+                        value: energy ? energy.toFixed(2) : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -395,7 +395,7 @@ export default function Dashboard({ ranking }) {
                 },
                 data: [
                     {
-                        value: energy ? energy.toFixed(4) : 0,
+                        value: energy ? energy.toFixed(2) : 0,
                         // name: "Good",
                         // title: {
                         //   offsetCenter: ["-30%", "80%"],
@@ -1358,7 +1358,7 @@ export default function Dashboard({ ranking }) {
                                                         {(
                                                             rank.total_energy *
                                                             0.8604
-                                                        ).toFixed(4)}{" "}
+                                                        ).toFixed(2)}{" "}
                                                         kcal
                                                     </TableCell>
                                                     <TableCell>
