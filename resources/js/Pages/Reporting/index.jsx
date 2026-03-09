@@ -285,7 +285,7 @@ export default function Reporting({ trxData, hrcData, filter }) {
                                             window.open(
                                                 "http://localhost:8000/export-record?hrc_id=" +
                                                     selectedHrc,
-                                                "_blank",
+                                                // "_blank",
                                             );
 
                                             setOpenModal(false);

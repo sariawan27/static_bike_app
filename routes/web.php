@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\RankingExport;
 use App\Exports\TransactionsExport;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -57,6 +58,14 @@ Route::get('/export-record', function (Request $req) {
         "record_{$name}.xlsx"
     );
 })->name('reporting.export');
+
+Route::get('/export-ranking-record', function (Request $req) {
+    $datetime = Carbon::now()->format('Ymd_His');
+    return Excel::download(
+        new RankingExport($req->all()),
+        "ranking_record_{$datetime}.xlsx"
+    );
+})->name('reporting.ranking_export');
 
 
 require __DIR__ . '/auth.php';
