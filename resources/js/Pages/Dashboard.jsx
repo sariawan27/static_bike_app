@@ -1281,6 +1281,25 @@ export default function Dashboard({ ranking }) {
                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">
                             Highlight Score
                         </h3>
+                        <p
+                            style={{
+                                marginTop: "2px",
+                            }}
+                        >
+                            <a
+                                className="xl:text-lg text-md font-semibold text-left"
+                                style={{
+                                    color: "brown",
+                                }}
+                                href={
+                                    "http://localhost:8000/export-ranking-record?hrc_id="
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Download
+                            </a>
+                        </p>
                         <div
                             className="overflow-x-auto"
                             style={{
