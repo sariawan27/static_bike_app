@@ -4,13 +4,51 @@ import NavbarSidebarLayout from "@/Components/NavbarSidebarLayout";
 import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+
+    const [isDuplicate, setIsDuplicate] = useState(false);
+
+    useEffect(() => {
+        // Buat channel komunikasi antar tab
+        const channel = new BroadcastChannel("app_single_tab_check");
+
+        // Kirim sinyal "ping" saat tab ini baru terbuka
+        channel.postMessage({ type: "PING" });
+
+        // Dengar pesan dari tab lain
+        channel.onmessage = (event) => {
+            if (event.data.type === "PING") {
+                // Jika tab lain mengirim PING, tab ini (yang sudah lama terbuka)
+                // membalas dengan PONG untuk memberi tahu "Saya sudah ada"
+                channel.postMessage({ type: "PONG" });
+            } else if (event.data.type === "PONG") {
+                // Jika tab ini menerima PONG, berarti sudah ada tab lain yang aktif
+                setIsDuplicate(true);
+            }
+        };
+
+        return () => channel.close();
+    }, []);
+
+    // Jika terdeteksi tab duplikat, tampilkan layar blokir
+    if (isDuplicate) {
+        return (
+            <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999]">
+                <h1 className="text-2xl font-bold text-red-600">
+                    Aplikasi Sudah Terbuka!
+                </h1>
+                <p className="text-gray-600 mt-2">
+                    Silakan gunakan tab yang sudah ada atau tutup tab ini.
+                </p>
+            </div>
+        );
+    }
 
     return (
         // <div className="min-h-screen " id="content-body">
