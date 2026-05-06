@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UsersController extends Controller
 {
@@ -160,6 +162,14 @@ class UsersController extends Controller
             'message' => 'User updated successfully',
             'data' => $user
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        set_time_limit(300); // Naikkan ke 5 menit (300 detik)
+        Excel::import(new UsersImport, $request->file('file'));
+
+        return redirect('/')->with('success', 'Data berhasil diimpor!');
     }
 
     /**

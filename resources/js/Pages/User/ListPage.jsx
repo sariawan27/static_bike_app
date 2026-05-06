@@ -7,6 +7,7 @@ import {
     Card,
     Dropdown,
     DropdownItem,
+    FileInput,
     Label,
     Modal,
     ModalBody,
@@ -25,13 +26,14 @@ import { HiOutlineDotsVertical } from "react-icons/hi";
 export default function ListPage() {
     console.log(
         window.location.href.split("/").filter(Boolean)[2],
-        "Dashboard"
+        "Dashboard",
     );
 
     const user = usePage().props.users;
     console.log("User:", user);
 
     const [openModal, setOpenModal] = useState(false);
+    const [openModalImport, setOpenModalImport] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         mode: "create", // create or edit
@@ -41,6 +43,7 @@ export default function ListPage() {
         email: "",
         password: "",
         password_confirmation: "",
+        file: null,
     });
 
     const submit = (e) => {
@@ -73,6 +76,14 @@ export default function ListPage() {
                 onFinish: () => reset("password", "password_confirmation"),
             });
         }
+    };
+
+    const submitImport = (e) => {
+        e.preventDefault();
+        post(route("users.import"), {
+            forceFormData: true, // Penting untuk upload file
+            onSuccess: () => alert("Import Selesai!"),
+        });
     };
 
     const deleteUser = (id) => {
@@ -125,10 +136,28 @@ export default function ListPage() {
                                             setData("name", "");
                                             setData("username", "");
                                             setData("email", "");
+                                            setData("file", null);
                                             setOpenModal(true);
                                         }}
                                     >
                                         Add
+                                    </Button>
+                                    <Button
+                                        color="light"
+                                        className="w-20"
+                                        pill
+                                        onClick={() => {
+                                            setData("mode", "create");
+                                            setData("role", "");
+                                            setData("id", "");
+                                            setData("name", "");
+                                            setData("username", "");
+                                            setData("email", "");
+                                            setData("file", null);
+                                            setOpenModalImport(true);
+                                        }}
+                                    >
+                                        Import
                                     </Button>
                                 </div>
                                 <div>
@@ -197,30 +226,30 @@ export default function ListPage() {
                                                                 onClick={() => {
                                                                     setData(
                                                                         "mode",
-                                                                        "edit"
+                                                                        "edit",
                                                                     );
                                                                     setData(
                                                                         "role",
-                                                                        user.role
+                                                                        user.role,
                                                                     );
                                                                     setData(
                                                                         "id",
-                                                                        user.id
+                                                                        user.id,
                                                                     );
                                                                     setData(
                                                                         "name",
-                                                                        user.name
+                                                                        user.name,
                                                                     );
                                                                     setData(
                                                                         "username",
-                                                                        user.username
+                                                                        user.username,
                                                                     );
                                                                     setData(
                                                                         "email",
-                                                                        user.email
+                                                                        user.email,
                                                                     );
                                                                     setOpenModal(
-                                                                        true
+                                                                        true,
                                                                     );
                                                                 }}
                                                             >
@@ -230,7 +259,7 @@ export default function ListPage() {
                                                                 className="text-red-600 opacity-100 disabled:opacity-75"
                                                                 onClick={() =>
                                                                     deleteUser(
-                                                                        user.id
+                                                                        user.id,
                                                                     )
                                                                 }
                                                             >
@@ -303,7 +332,7 @@ export default function ListPage() {
                                             onChange={(e) =>
                                                 setData(
                                                     "username",
-                                                    e.target.value
+                                                    e.target.value,
                                                 )
                                             }
                                             required
@@ -354,7 +383,7 @@ export default function ListPage() {
                                             onChange={(e) =>
                                                 setData(
                                                     "password",
-                                                    e.target.value
+                                                    e.target.value,
                                                 )
                                             }
                                         />
@@ -380,7 +409,7 @@ export default function ListPage() {
                                             onChange={(e) =>
                                                 setData(
                                                     "password_confirmation",
-                                                    e.target.value
+                                                    e.target.value,
                                                 )
                                             }
                                         />
@@ -403,6 +432,62 @@ export default function ListPage() {
                                             {data?.mode == "create"
                                                 ? "Register Now!"
                                                 : "Update Now!"}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
+                        </ModalBody>
+                    </Modal>
+
+                    <Modal
+                        show={openModalImport}
+                        size="md"
+                        popup
+                        position="top-center"
+                        onClose={() => setOpenModalImport(false)}
+                    >
+                        <ModalHeader />
+                        <ModalBody>
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                                    Import Data User
+                                </h3>
+                                <form onSubmit={submitImport}>
+                                    <div>
+                                        <InputLabel
+                                            htmlFor="file"
+                                            value="File Excel (.xlsx)"
+                                        />
+
+                                        <FileInput
+                                            id="file"
+                                            name="file"
+                                            className="mt-1 block w-full"
+                                            autoComplete="file"
+                                            isFocused={true}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "file",
+                                                    e.target.files[0],
+                                                )
+                                            }
+                                            required
+                                        />
+
+                                        <InputError
+                                            message={errors.file}
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                    <div className="w-full flex justify-end mt-4">
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            style={{
+                                                backgroundColor: "#181745",
+                                            }}
+                                        >
+                                            Import Now!
                                         </Button>
                                     </div>
                                 </form>

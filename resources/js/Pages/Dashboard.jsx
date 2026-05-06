@@ -138,18 +138,18 @@ export default function Dashboard({ ranking }) {
                 //     overlap: true,
                 //     roundCap: false,
                 // },
-                axisLine: {
-                    width: 25,
-                    lineStyle: {
-                        color: [
-                            [0.73, "#67e0e3"],
-                            [0.9, "#f8c630"],
-                            [1, "#fd666d"],
-                        ],
-                        width: 25,
-                    },
-                    roundCap: false,
-                },
+                // axisLine: {
+                //     width: 25,
+                //     lineStyle: {
+                //         color: [
+                //             [0.73, "#67e0e3"],
+                //             [0.9, "#f8c630"],
+                //             [1, "#fd666d"],
+                //         ],
+                //         width: 25,
+                //     },
+                //     roundCap: false,
+                // },
                 pointer: {
                     itemStyle: {
                         color: "auto",
@@ -183,11 +183,45 @@ export default function Dashboard({ ranking }) {
                         },
                     },
                 ],
+                axisLine: {
+                    width: 25,
+                    lineStyle: {
+                        color: [
+                            [0.73, "#67e0e3"],
+                            [0.9, "#f8c630"],
+                            [1, "#fd666d"],
+                        ],
+                        width: 25,
+                    },
+                },
+                axisTick: {
+                    show: false, // Matikan garis kecil agar tidak "dobel"
+                },
                 splitLine: {
-                    show: false,
+                    show: true,
+                    // Jarak 25px dari tepi luar (tepat di garis dalam busur)
+                    distance: 8,
+                    length: 10, // Garis dibuat lebih panjang menjorok ke dalam
+                    lineStyle: {
+                        color: "auto", // Warna garis mengikuti segmen warna
+                        width: 3,
+                    },
                 },
                 axisLabel: {
-                    show: false,
+                    show: true,
+                    // Jarak 45px dari tepi luar agar angka berada di ujung garis splitLine
+                    distance: 30,
+                    color: "inherit",
+                    fontSize: 9,
+                    fontWeight: "bold",
+                    formatter: function (value) {
+                        // Hanya tampilkan angka bulat di batas warna
+                        if (value === 0) return "0";
+                        if (Math.round(value) === 31) return "31"; // Batas 73%
+                        if (Math.round(value) === 39) return "39"; // Batas 90%
+                        if (value === 43) return "43"; // Batas 100%
+                        return "";
+                    },
                 },
                 title: {
                     fontSize: 14,
